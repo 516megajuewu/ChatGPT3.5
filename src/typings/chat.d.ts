@@ -13,6 +13,7 @@ declare namespace Chat {
 	interface History {
 		title: string
 		isEdit: boolean
+		system: string
 		uuid: number
 	}
 
