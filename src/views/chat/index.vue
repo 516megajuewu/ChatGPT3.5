@@ -54,8 +54,7 @@ const startSpeechRecognition = () => {
   speechTimeoutId = setTimeout(() => {
     try {
       // eslint-disable-next-line new-cap
-      recognition = new window.webkitSpeechRecognition()
-
+      recognition = new (window as any).webkitSpeechRecognition()
       recognition.value = prompt.value // 识别结果
       recognition.continuous = true
       recognition.interimResults = true

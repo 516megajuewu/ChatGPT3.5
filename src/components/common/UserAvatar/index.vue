@@ -35,7 +35,7 @@ const UpBalance = async () => {
     </div>
     <div class="flex-1 min-w-0 ml-2">
       <NButton class="overflow-hidden font-bold text-md text-ellipsis whitespace-nowrap" text @click="login">
-        {{ userInfo.name ?? 'ChenZhaoYu' }}
+        {{ userInfo.name ?? 'ME' }}
       </NButton>
       <p class="overflow-hidden text-xs text-gray-500 text-ellipsis whitespace-nowrap" @click="UpBalance">
         <span
