@@ -572,6 +572,8 @@ onUnmounted(() => {
                 v-model:value="prompt" type="textarea" :placeholder="placeholder"
                 :autosize="{ minRows: 1, maxRows: 16 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur"
                 @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
+                @touchstart="startSpeechRecognition"
+                @touchend="stopSpeechRecognition"
               />
             </template>
           </NAutoComplete>

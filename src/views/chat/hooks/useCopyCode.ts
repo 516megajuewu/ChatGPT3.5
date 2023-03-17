@@ -1,5 +1,8 @@
 import { onMounted, onUpdated } from 'vue'
+import { useMessage } from 'naive-ui'
 import { copyText } from '@/utils/format'
+
+const ms = useMessage()
 
 export function useCopyCode() {
   function copyCodeBlock() {
@@ -9,6 +12,7 @@ export function useCopyCode() {
       const codeBlock = wrapper.querySelector('.code-block-body')
       if (copyBtn && codeBlock) {
         copyBtn.addEventListener('click', () => {
+          ms.success('复制成功')
           if (navigator.clipboard?.writeText)
             navigator.clipboard.writeText(codeBlock.textContent ?? '')
           else
