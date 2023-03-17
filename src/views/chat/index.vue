@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, NPopconfirm, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -49,7 +49,13 @@ const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 let recognition = null as any
 let speechTimeoutId = null as any
 
-const startSpeechRecognition = () => {
+const startSpeechRecognition = (event: MouseEvent) => {
+  // 鼠标中键 提交
+  if (event.button === 1) {
+    handleSubmit()
+    return
+  }
+
   clearTimeout(speechTimeoutId)
   speechTimeoutId = setTimeout(() => {
     try {
@@ -403,16 +409,16 @@ function handleDelete(index: number) {
 function handleClear() {
   if (loading.value)
     return
-  // return chatStore.clearChatByUuid(+uuid)
-  dialog.warning({
-    title: t('chat.clearChat'),
-    content: t('chat.clearChatConfirm'),
-    positiveText: t('common.yes'),
-    negativeText: t('common.no'),
-    onPositiveClick: () => {
-      chatStore.clearChatByUuid(+uuid)
-    },
-  })
+  return chatStore.clearChatByUuid(+uuid)
+  // dialog.warning({
+  //   title: t('chat.clearChat'),
+  //   content: t('chat.clearChatConfirm'),
+  //   positiveText: t('common.yes'),
+  //   negativeText: t('common.no'),
+  //   onPositiveClick: () => {
+  //     chatStore.clearChatByUuid(+uuid)
+  //   },
+  // })
 }
 
 function handleEnter(event: KeyboardEvent) {
@@ -423,7 +429,7 @@ function handleEnter(event: KeyboardEvent) {
     }
   }
   else {
-    if (event.key === 'Enter' && event.ctrlKey) {
+    if (((event.code === 'Enter' || event.key === 'Enter') && event.ctrlKey) || event.key === '\n') {
       event.preventDefault()
       handleSubmit()
     }
@@ -530,12 +536,22 @@ onUnmounted(() => {
     <footer :class="footerClass">
       <div class="w-full max-w-screen-xl m-auto">
         <div class="flex items-center justify-between space-x-2">
-          <HoverButton @click="handleClear">
+          <!-- <HoverButton @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:delete-bin-line" />
             </span>
-          </HoverButton>
-          <HoverButton v-if="!isMobile" @click="handleExport">
+          </HoverButton> -->
+          <NPopconfirm placement="bottom" @positive-click="handleClear">
+            <template #trigger>
+              <NButton>
+                <span class="text-xl text-[#4f555e] dark:text-white">
+                  <SvgIcon icon="ri:delete-bin-line" />
+                </span>
+              </NButton>
+            </template>
+            {{ $t('chat.deleteHistoryConfirm') }}
+          </NPopconfirm>
+          <!-- <HoverButton v-if="!isMobile" @click="handleExport">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:download-2-line" />
             </span>
@@ -544,7 +560,7 @@ onUnmounted(() => {
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
             </span>
-          </HoverButton>
+          </HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput

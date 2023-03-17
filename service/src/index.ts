@@ -1,6 +1,7 @@
 import express from 'express'
+import cors from 'cors'
 import type { ChatContext, ChatMessage } from './chatgpt'
-import { chatConfig, chatReplyProcess } from './chatgpt'
+import { chatConfig, chatReplyProcess, fetchBalance } from './chatgpt'
 import { auth } from './middleware/auth'
 
 const app = express()
@@ -8,6 +9,7 @@ const router = express.Router()
 
 app.use(express.static('public'))
 app.use(express.json())
+app.use(cors())
 
 app.all('*', (_, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -38,6 +40,16 @@ router.post('/chat-process', auth, async (req, res) => {
 router.post('/config', async (req, res) => {
   try {
     const response = await chatConfig()
+    res.send(response)
+  }
+  catch (error) {
+    res.send(error)
+  }
+})
+
+router.post('/balance', async (req, res) => {
+  try {
+    const response = await fetchBalance()
     res.send(response)
   }
   catch (error) {

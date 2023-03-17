@@ -55,7 +55,7 @@ export default {
     name: '名称',
     description: '描述',
     resetUserInfo: '重置用户信息',
-    chatHistory: '聊天记录',
+    chatHistory: '记录',
     theme: '主题',
     language: '语言',
     api: 'API',

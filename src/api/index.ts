@@ -34,6 +34,12 @@ export function fetchChatAPIProcess<T = any>(
   })
 }
 
+export function fetchBalance<T = any>() {
+  return post<T>({
+    url: '/balance',
+  })
+}
+
 // export function fetchSession<T>() {
 //   return post<T>({
 //     url: '/session',

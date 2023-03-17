@@ -1,26 +1,41 @@
 <script setup lang='ts'>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { NAvatar, NButton, useMessage } from 'naive-ui'
 import { useUserStore } from '@/store'
 import defaultAvatar from '@/assets/avatar.jpg'
 import { isString } from '@/utils/is'
+import { fetchBalance } from '@/api'
 
 const userStore = useUserStore()
 const message = useMessage()
 const userInfo = computed(() => userStore.userInfo)
+const Setting = defineAsyncComponent(() => import('@/components/common/Setting/index.vue'))
+
+const show = ref(false)
 
 const login = async () => {
-  message.success('登录成功')
+  message.success('未开发')
 }
 
 const UpBalance = async () => {
-  message.success('查询余额')
+  try {
+    userStore.updateUserInfo({ description: '查询中...' })
+    const res = await fetchBalance()
+    userStore.updateUserInfo({ description: `余额:${res}` })
+  }
+  catch (error) {
+
+  }
 }
+// 初始完成 调用初始化余额
+onMounted(() => {
+  UpBalance()
+})
 </script>
 
 <template>
   <div class="flex items-center overflow-hidden">
-    <div class="w-10 h-10 overflow-hidden rounded-full shrink-0" @click="login">
+    <div class="w-10 h-10 overflow-hidden rounded-full shrink-0" @click="show = true">
       <NButton v-if="isString(userInfo.avatar) && userInfo.avatar.length > 0">
         <NAvatar
           size="large"
@@ -45,4 +60,5 @@ const UpBalance = async () => {
       </p>
     </div>
   </div>
+  <Setting v-if="show" v-model:visible="show" />
 </template>

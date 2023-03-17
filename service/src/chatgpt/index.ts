@@ -5,6 +5,7 @@ import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
+import axios from 'axios'
 import { sendResponse } from '../utils'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 
@@ -135,6 +136,25 @@ async function chatReplyProcess(
   }
 }
 
+async function fetchBalance() {
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+  if (!(OPENAI_API_KEY))
+    return Promise.resolve('-')
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+    }
+    const response = await axios.get('https://api.openai.com/dashboard/billing/credit_grants', { headers })
+    const balance = response.data.total_available ?? 0
+    return Promise.resolve(balance.toFixed(3))
+  }
+  catch {
+    return Promise.resolve('-')
+  }
+}
+
 async function chatConfig() {
   const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.ALL_PROXY || process.env.all_proxy
 
@@ -152,4 +172,4 @@ async function chatConfig() {
 
 export type { ChatContext, ChatMessage }
 
-export { chatReplyProcess, chatConfig }
+export { chatReplyProcess, chatConfig, fetchBalance }
