@@ -136,6 +136,17 @@ async function chatReplyProcess(
   }
 }
 
+// 计算 可用余额/ 总余额 / 剩余天数
+function GetBalance(json) {
+  const total_granted = json.total_granted
+  const total_available = json.total_available
+  const grants = json.grants.data
+  const now = new Date().getTime() / 1000
+  const expires_at = grants[0].expires_at
+  const days = (expires_at - now) / 86400
+  return `${total_available.toFixed(2)}/${total_granted}.00` + ` ${days.toFixed(0)}天`
+}
+
 async function fetchBalance() {
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY
   if (!(OPENAI_API_KEY))
@@ -147,11 +158,10 @@ async function fetchBalance() {
       'Authorization': `Bearer ${OPENAI_API_KEY}`,
     }
     const response = await axios.get('https://api.openai.com/dashboard/billing/credit_grants', { headers })
-    const balance = response.data.total_available ?? 0
-    return Promise.resolve(balance.toFixed(3))
+    return Promise.resolve(GetBalance(response.data))
   }
   catch {
-    return Promise.resolve('-')
+    return Promise.resolve('未知')
   }
 }
 
