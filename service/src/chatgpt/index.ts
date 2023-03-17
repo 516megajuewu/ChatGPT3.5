@@ -101,6 +101,7 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 })()
 
 async function chatReplyProcess(
+  system: string,
   message: string,
   lastContext?: { conversationId?: string; parentMessageId?: string },
   process?: (chat: ChatMessage) => void,
@@ -117,6 +118,8 @@ async function chatReplyProcess(
       else
         options = { ...lastContext }
     }
+
+    options.systemMessage = system
 
     const response = await api.sendMessage(message, {
       ...options,
@@ -157,10 +160,21 @@ async function fetchBalance() {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${OPENAI_API_KEY}`,
     }
+
+    // if (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT) {
+    //   const agent = new SocksProxyAgent({
+    //     hostname: process.env.SOCKS_PROXY_HOST,
+    //     port: process.env.SOCKS_PROXY_PORT,
+    //   })
+    //   const response = await axios.get('https://api.openai.com/dashboard/billing/credit_grants', { headers, httpsAgent: agent })
+    //   return Promise.resolve(GetBalance(response.data))
+    // }
+
     const response = await axios.get('https://api.openai.com/dashboard/billing/credit_grants', { headers })
     return Promise.resolve(GetBalance(response.data))
   }
-  catch {
+  catch (error: any) {
+    global.console.log(error.message)
     return Promise.resolve('未知')
   }
 }

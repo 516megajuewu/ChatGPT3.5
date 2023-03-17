@@ -24,7 +24,7 @@ const UpBalance = async () => {
     userStore.updateUserInfo({ description: `余额:${res}` })
   }
   catch (error) {
-
+    userStore.updateUserInfo({ description: '未知' })
   }
 }
 // 初始完成 调用初始化余额

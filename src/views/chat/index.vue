@@ -52,6 +52,7 @@ let speechTimeoutId = null as any
 const startSpeechRecognition = (event: MouseEvent) => {
   // 鼠标中键 提交
   if (event.button === 1) {
+    // console.log(chatStore.getHistory(+uuid))
     handleSubmit()
     return
   }
@@ -142,8 +143,10 @@ async function onConversation() {
 
   try {
     let lastText = ''
+    const system = (chatStore.getHistory(+uuid) || { system: '' }).system
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
+        system,
         prompt: message,
         options,
         signal: controller.signal,
@@ -272,8 +275,10 @@ async function onRegenerate(index: number) {
 
   try {
     let lastText = ''
+    const system = (chatStore.getHistory(+uuid) || { system: '' }).system
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
+        system,
         prompt: message,
         options,
         signal: controller.signal,
@@ -549,18 +554,18 @@ onUnmounted(() => {
                 </span>
               </NButton>
             </template>
-            {{ $t('chat.deleteHistoryConfirm') }}
+            {{ $t('chat.clearHistoryConfirm') }}
           </NPopconfirm>
           <!-- <HoverButton v-if="!isMobile" @click="handleExport">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:download-2-line" />
             </span>
-          </HoverButton>
-          <HoverButton v-if="!isMobile" @click="toggleUsingContext">
+          </HoverButton> -->
+          <NButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
             </span>
-          </HoverButton> -->
+          </NButton>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput

@@ -447,6 +447,13 @@ const dataSource = computed(() => {
         >
           {{ t('common.confirm') }}
         </NButton>
+        <NButton
+          block
+          type="primary"
+          @click="() => { modalMode === 'add' ? addPromptTemplate() : modifyPromptTemplate() }"
+        >
+          {{ '使用' }}
+        </NButton>
       </NSpace>
       <NSpace v-if="modalMode === 'local_import'" vertical>
         <NInput

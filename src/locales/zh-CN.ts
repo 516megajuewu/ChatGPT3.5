@@ -28,7 +28,7 @@ export default {
     unauthorizedTips: '未经授权，请先进行验证。',
   },
   chat: {
-    placeholder: '来说点什么吧...（Shift + Enter = 换行）按住语音输入',
+    placeholder: '/快捷示例...（Shift + Enter = 换行）按住语音输入 鼠标中键发送 ',
     placeholderMobile: '来说点什么...',
     copy: '复制',
     copied: '复制成功',
