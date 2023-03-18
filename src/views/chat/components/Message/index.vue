@@ -92,7 +92,7 @@ function handleRegenerate() {
           </button>
           <button
             v-if="!inversion"
-            class="mb-2 transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-300"
+            class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200"
             @click="handleSelect('delete')"
           >
             <SvgIcon icon="ri:delete-bin-line" />
