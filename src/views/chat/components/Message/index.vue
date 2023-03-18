@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { ref } from 'vue'
-import { useMessage } from 'naive-ui'
+import { NPopconfirm, useMessage } from 'naive-ui'
 import AvatarComponent from './Avatar.vue'
 import TextComponent from './Text.vue'
 import { SvgIcon } from '@/components/common'
@@ -90,13 +90,16 @@ function handleRegenerate() {
           >
             <SvgIcon icon="ri:restart-line" />
           </button>
-          <button
-            v-if="!inversion"
-            class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200"
-            @click="handleSelect('delete')"
-          >
-            <SvgIcon icon="ri:delete-bin-line" />
-          </button>
+          <NPopconfirm v-if="!inversion" placement="bottom" @positive-click="handleSelect('delete')">
+            <template #trigger>
+              <NButton
+                class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200"
+              >
+                <SvgIcon icon="ri:delete-bin-line" />
+              </NButton>
+            </template>
+            {{ $t('chat.clearHistoryConfirm') }}
+          </NPopconfirm>
           <!-- <NDropdown :placement="!inversion ? 'right' : 'left'" :options="options" @select="handleSelect">
             <button class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200">
               <SvgIcon icon="ri:more-2-fill" />
