@@ -1,8 +1,6 @@
 import { onMounted, onUpdated } from 'vue'
-import { useMessage } from 'naive-ui'
 import { copyText } from '@/utils/format'
-
-const ms = useMessage()
+import { t } from '@/locales'
 
 export function useCopyCode() {
   function copyCodeBlock() {
@@ -12,7 +10,10 @@ export function useCopyCode() {
       const codeBlock = wrapper.querySelector('.code-block-body')
       if (copyBtn && codeBlock) {
         copyBtn.addEventListener('click', () => {
-          ms.success('复制成功')
+          // 设置 copyBtn 的文本 为chat.copied 并在 1s 后恢复
+          const copyBtnText = copyBtn.textContent
+          copyBtn.textContent = t('chat.copied')
+          setTimeout(() => copyBtn.textContent = copyBtnText, 1000)
           if (navigator.clipboard?.writeText)
             navigator.clipboard.writeText(codeBlock.textContent ?? '')
           else

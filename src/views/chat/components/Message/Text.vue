@@ -3,8 +3,14 @@ import { computed, ref } from 'vue'
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
 import hljs from 'highlight.js'
+import { useMessage } from 'naive-ui'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { t } from '@/locales'
+// import { SvgIcon } from '@/components/common'
+import { copyText } from '@/utils/format'
+const props = defineProps<Props>()
+
+const message = useMessage()
 
 interface Props {
   inversion?: boolean
@@ -12,8 +18,6 @@ interface Props {
   text?: string
   loading?: boolean
 }
-
-const props = defineProps<Props>()
 
 const { isMobile } = useBasicLayout()
 
@@ -65,11 +69,18 @@ defineExpose({ textRef })
       <span class="dark:text-white w-[4px] h-[20px] block animate-blink" />
     </template>
     <template v-else>
-      <div ref="textRef" class="leading-relaxed break-words">
+      <div ref="textRef" class="leading-relaxed break-words" @dblclick="copyText({ text: props.text ?? '' });message.success('复制成功');">
         <div v-if="!inversion" class="markdown-body" v-html="text" />
         <div v-else class="whitespace-pre-wrap" v-text="text" />
       </div>
     </template>
+    <!-- <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+      <div class="whitespace-pre-wrap" v-text="''" />
+      <NButton text size="tiny" class="hover:text-neutral-800 dark:hover:text-neutral-200">
+        <SvgIcon icon="ri:file-copy-2-line" />
+        复制
+      </NButton>
+    </div> -->
   </div>
 </template>
 

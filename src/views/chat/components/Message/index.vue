@@ -1,12 +1,17 @@
 <script setup lang='ts'>
 import { ref } from 'vue'
-import { NDropdown } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import AvatarComponent from './Avatar.vue'
 import TextComponent from './Text.vue'
 import { SvgIcon } from '@/components/common'
 import { copyText } from '@/utils/format'
-import { useIconRender } from '@/hooks/useIconRender'
-import { t } from '@/locales'
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emit>()
+
+// import { useIconRender } from '@/hooks/useIconRender'
+// import { t } from '@/locales'
+const message = useMessage()
 
 interface Props {
   dateTime?: string
@@ -21,30 +26,27 @@ interface Emit {
   (ev: 'delete'): void
 }
 
-const props = defineProps<Props>()
-
-const emit = defineEmits<Emit>()
-
-const { iconRender } = useIconRender()
+// const { iconRender } = useIconRender()
 
 const textRef = ref<HTMLElement>()
 
-const options = [
-  {
-    label: t('chat.copy'),
-    key: 'copyText',
-    icon: iconRender({ icon: 'ri:file-copy-2-line' }),
-  },
-  {
-    label: t('common.delete'),
-    key: 'delete',
-    icon: iconRender({ icon: 'ri:delete-bin-line' }),
-  },
-]
+// const options = [
+//   {
+//     label: t('chat.copy'),
+//     key: 'copyText',
+//     icon: iconRender({ icon: 'ri:file-copy-2-line' }),
+//   },
+//   {
+//     label: t('common.delete'),
+//     key: 'delete',
+//     icon: iconRender({ icon: 'ri:delete-bin-line' }),
+//   },
+// ]
 
 function handleSelect(key: 'copyRaw' | 'copyText' | 'delete') {
   switch (key) {
     case 'copyText':
+      message.success('复制成功')
       copyText({ text: props.text ?? '' })
       return
     case 'delete':
@@ -88,11 +90,18 @@ function handleRegenerate() {
           >
             <SvgIcon icon="ri:restart-line" />
           </button>
-          <NDropdown :placement="!inversion ? 'right' : 'left'" :options="options" @select="handleSelect">
+          <button
+            v-if="!inversion"
+            class="mb-2 transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-300"
+            @click="handleSelect('delete')"
+          >
+            <SvgIcon icon="ri:delete-bin-line" />
+          </button>
+          <!-- <NDropdown :placement="!inversion ? 'right' : 'left'" :options="options" @select="handleSelect">
             <button class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200">
               <SvgIcon icon="ri:more-2-fill" />
             </button>
-          </NDropdown>
+          </NDropdown> -->
         </div>
       </div>
     </div>
