@@ -92,11 +92,11 @@ function handleRegenerate() {
           </button>
           <NPopconfirm v-if="!inversion" placement="bottom" @positive-click="handleSelect('delete')">
             <template #trigger>
-              <NButton
+              <button
                 class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200"
               >
                 <SvgIcon icon="ri:delete-bin-line" />
-              </NButton>
+              </button>
             </template>
             {{ $t('chat.clearHistoryConfirm') }}
           </NPopconfirm>

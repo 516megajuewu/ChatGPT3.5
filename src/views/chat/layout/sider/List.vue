@@ -64,15 +64,15 @@ function isActive(uuid: number) {
           >
             <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
               <template #trigger>
-                <NButton>
+                <button>
                   <span class="text-xl">
                     <SvgIcon icon="ri:message-2-line" />
                   </span>
-                </NButton>
+                </button>
               </template>
               <span class="text">设置标题
                 <NInput v-model:value="item.title" type="text" placeholder="标题" />
-                <p class="text">设定角色<NInput v-model:value="item.system" type="textarea" placeholder="例: 你是一个主播.不回答任何违背直播间规定和超过50个字以上的回答,性格温柔可爱又傲娇.等等..PS:添加你能想象到的任何设定" />
+                <p class="text">设定角色<NInput v-model:value="item.system" type="textarea" placeholder="例: 设定背景,职业,性格,等等等等.. " />
                 </p>
               </span>
             </NPopconfirm>
