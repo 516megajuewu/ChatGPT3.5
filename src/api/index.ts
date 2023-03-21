@@ -42,7 +42,7 @@ export function fetchChatProcess<T = any>(
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
 ) {
   return post<T>({
-    url: 'http://127.0.0.1:3000/chat',
+    url: '/chat',
     data: params.options,
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
