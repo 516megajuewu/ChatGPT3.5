@@ -44,7 +44,7 @@ router.post('/chat-process', auth, async (req, res) => {
 router.post('/chat', auth, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const data = await openai(req.body, (t: string) => { res.write(t) })
+    const data = await openai(req.body, (t) => { res.write(t) })
     data.length < 3 && res.end('调用错误')
   }
   catch (error) {

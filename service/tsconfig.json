@@ -22,6 +22,6 @@
     "build"
   ],
   "include": [
-    "**/*.ts"
-  ]
+    "**/*.ts",
+    "src/Request.js", "./Voice/*.js"]
 }
