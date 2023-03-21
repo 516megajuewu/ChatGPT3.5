@@ -13,12 +13,12 @@ import HeaderComponent from './components/Header/index.vue'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
-import { fetchChatAPIProcess } from '@/api'
+import { fetchChatProcess } from '@/api'
 import { t } from '@/locales'
 
 let controller = new AbortController()
 
-const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
+// const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
 
 const route = useRoute()
 const dialog = useDialog()
@@ -94,8 +94,39 @@ function handleSubmit() {
   onConversation()
 }
 
+function itemStyle(index: number) {
+  const item = dataSources.value[index]
+  const diff = new Date().getTime() - new Date(item.dateTime).getTime()
+  if (diff > 5 * 60 * 1000)
+    return { color: 'gray' }
+  return {}
+}
+
+// !!有两个问题 index 和 不带聊天按钮
+function buildMessage(message: String, index: number) {
+  // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+  const system = (chatStore.getHistory(+uuid) || { system: '' }).system
+  const messages = [{ role: 'system', content: system }]
+  // 消息长度
+  let len = system.length + message.length
+  usingContext.value && dataSources.value.forEach((item, i) => {
+    const temp = { role: item.inversion ? 'user' : 'assistant', content: item.text }
+    len += item.text.length
+    if ((i > (index || 999)) || !item.text)
+      return
+    if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 5 * 60 * 1000))
+      return messages.length <= 2 && item.inversion && (messages[1] = temp)
+    len > 4000 && messages.shift()
+    messages.push(temp)
+  })
+  usingContext.value || messages.push({ role: 'user', content: message as string })
+  // 最后一个是assistant的话删除
+  messages[messages.length - 1].role === 'assistant' && messages.pop()
+  return messages
+}
+
 async function onConversation() {
-  let message = prompt.value
+  const message = prompt.value
 
   if (loading.value)
     return
@@ -141,55 +172,42 @@ async function onConversation() {
   )
   scrollToBottom()
 
+  // console.log(options, dataSources)
   try {
-    let lastText = ''
-    const system = (chatStore.getHistory(+uuid) || { system: '' }).system
+    // const lastText = ''
+    // const system = (chatStore.getHistory(+uuid) || { system: '' }).system
     const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<Chat.ConversationResponse>({
-        system,
-        prompt: message,
+      // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+      const messages = buildMessage(message, dataSources.value.length - 1)
+      const options = { messages }
+      await fetchChatProcess({
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
           const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n')
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
           try {
-            const data = JSON.parse(chunk)
             updateChat(
               +uuid,
               dataSources.value.length - 1,
               {
                 dateTime: new Date().toLocaleString(),
-                text: lastText + data.text ?? '',
+                text: responseText ?? '',
                 inversion: false,
                 error: false,
                 loading: false,
-                conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
-                requestOptions: { prompt: message, options: { ...options } },
+                conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
+                requestOptions: { prompt: message },
               },
             )
-
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-              options.parentMessageId = data.id
-              lastText = data.text
-              message = ''
-              return fetchChatAPIOnce()
-            }
-
             scrollToBottom()
           }
           catch (error) {
-            //
+            // console.log(error)
           }
         },
       })
     }
-
     await fetchChatAPIOnce()
   }
   catch (error: any) {
@@ -250,7 +268,7 @@ async function onRegenerate(index: number) {
 
   const { requestOptions } = dataSources.value[index]
 
-  let message = requestOptions?.prompt ?? ''
+  const message = requestOptions?.prompt ?? ''
 
   let options: Chat.ConversationRequest = {}
 
@@ -274,47 +292,34 @@ async function onRegenerate(index: number) {
   )
 
   try {
-    let lastText = ''
-    const system = (chatStore.getHistory(+uuid) || { system: '' }).system
     const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<Chat.ConversationResponse>({
-        system,
-        prompt: message,
+      // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+      const messages = buildMessage(message, index)
+      const options = { messages }
+      await fetchChatProcess({
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
-          const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n')
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
+          const { responseText = '调用失败' } = xhr
           try {
-            const data = JSON.parse(chunk)
             updateChat(
               +uuid,
               index,
               {
                 dateTime: new Date().toLocaleString(),
-                text: lastText + data.text ?? '',
+                text: responseText ?? '',
                 inversion: false,
                 error: false,
                 loading: false,
-                conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
-                requestOptions: { prompt: message, ...options },
+                conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
+                requestOptions: { prompt: message },
               },
             )
-
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-              options.parentMessageId = data.id
-              lastText = data.text
-              message = ''
-              return fetchChatAPIOnce()
-            }
+            scrollToBottom()
           }
           catch (error) {
-            //
+            // console.log(error)
           }
         },
       })
@@ -524,8 +529,8 @@ onUnmounted(() => {
             <div>
               <Message
                 v-for="(item, index) of dataSources" :key="index" :date-time="item.dateTime" :text="item.text"
-                :inversion="item.inversion" :error="item.error" :loading="item.loading" @regenerate="onRegenerate(index)"
-                @delete="handleDelete(index)"
+                :inversion="item.inversion" :error="item.error" :loading="item.loading" :style="itemStyle(index)"
+                @regenerate="onRegenerate(index)" @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
                 <NButton v-if="loading" type="warning" @click="handleStop">
@@ -544,10 +549,10 @@ onUnmounted(() => {
       <div class="w-full max-w-screen-xl m-auto">
         <div class="flex items-center justify-between space-x-2">
           <!-- <HoverButton @click="handleClear">
-            <span class="text-xl text-[#4f555e] dark:text-white">
-              <SvgIcon icon="ri:delete-bin-line" />
-            </span>
-          </HoverButton> -->
+                  <span class="text-xl text-[#4f555e] dark:text-white">
+                    <SvgIcon icon="ri:delete-bin-line" />
+                  </span>
+                </HoverButton> -->
           <NPopconfirm placement="bottom" @positive-click="handleClear">
             <template #trigger>
               <NButton>
@@ -559,10 +564,10 @@ onUnmounted(() => {
             {{ $t('chat.clearHistoryConfirm') }}
           </NPopconfirm>
           <!-- <HoverButton v-if="!isMobile" @click="handleExport">
-            <span class="text-xl text-[#4f555e] dark:text-white">
-              <SvgIcon icon="ri:download-2-line" />
-            </span>
-          </HoverButton> -->
+                  <span class="text-xl text-[#4f555e] dark:text-white">
+                    <SvgIcon icon="ri:download-2-line" />
+                  </span>
+                </HoverButton> -->
           <NButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
@@ -574,8 +579,7 @@ onUnmounted(() => {
                 v-model:value="prompt" type="textarea" :placeholder="placeholder"
                 :autosize="{ minRows: 1, maxRows: 16 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur"
                 @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
-                @touchstart="startSpeechRecognition"
-                @touchend="stopSpeechRecognition"
+                @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition"
               />
             </template>
           </NAutoComplete>

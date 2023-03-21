@@ -35,6 +35,36 @@ export function fetchChatAPIProcess<T = any>(
   })
 }
 
+export function fetchChatProcess<T = any>(
+  params: {
+    options: {}
+    signal?: GenericAbortSignal
+    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
+) {
+  return post<T>({
+    url: 'http://127.0.0.1:3000/chat',
+    data: params.options,
+    signal: params.signal,
+    onDownloadProgress: params.onDownloadProgress,
+  })
+}
+
+// async function Vioce() {
+//   const response = await fetch('http://localhost:3000/voice', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({
+//       text: '呜呜呜呜',
+//     })
+//   });
+//   //写到桌面
+//   const blob = await response.blob();
+//   const audio = new Audio(URL.createObjectURL(blob));
+//   audio.play();
+// }
+
 export function fetchBalance<T = any>() {
   return post<T>({
     url: '/balance',

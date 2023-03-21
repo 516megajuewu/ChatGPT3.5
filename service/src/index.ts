@@ -1,11 +1,14 @@
 import express from 'express'
 import cors from 'cors'
 import type { ChatContext, ChatMessage } from './chatgpt'
-import { chatConfig, chatReplyProcess, fetchBalance } from './chatgpt'
+import { chatConfig, chatReplyProcess } from './chatgpt'
 import { auth } from './middleware/auth'
+import Request from './Request'
+import Voice from './Voice/index'
 
 const app = express()
 const router = express.Router()
+const KEY = process.env.OPENAI_API_KEY
 
 app.use(express.static('public'))
 app.use(express.json())
@@ -38,6 +41,20 @@ router.post('/chat-process', auth, async (req, res) => {
   }
 })
 
+router.post('/chat', auth, async (req, res) => {
+  res.setHeader('Content-type', 'application/octet-stream')
+  try {
+    const data = await openai(req.body, (t: string) => { res.write(t) })
+    data.length < 3 && res.end('调用错误')
+  }
+  catch (error) {
+    res.write(`调用错误: ${error.message}`)
+  }
+  finally {
+    res.end()
+  }
+})
+
 router.post('/config', async (req, res) => {
   try {
     const response = await chatConfig()
@@ -50,7 +67,7 @@ router.post('/config', async (req, res) => {
 
 router.post('/balance', async (req, res) => {
   try {
-    const response = await fetchBalance()
+    const response = await balance(req.body.key)// fetchBalance()
     res.send(response)
   }
   catch (error) {
@@ -85,7 +102,60 @@ router.post('/verify', async (req, res) => {
   }
 })
 
+router.post('/voice', async (req, res) => {
+  // 返回mp3 数据流
+  res.setHeader('Content-type', 'audio/mp3')
+  try {
+    const { text, voice, style, rate, pitch } = req.body
+    res.end(await Voice(text, voice, style, rate, pitch))
+  }
+  catch (error) {
+    res.end(`调用错误: ${error.message}`)
+  }
+})
+
 app.use('', router)
 app.use('/api', router)
 
 app.listen(3002, () => globalThis.console.log('Server is running on port 3002'))
+
+async function openai(options, process = () => { }) {
+  const req = await Request(options.url ?? 'https://api.openai.com/v1/chat/completions', {
+    // agent: new ProxyAgent(Agent),
+    method: options.method ?? 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${options.key ?? KEY}`,
+    },
+    data: JSON.stringify({
+      model: options.model ?? 'gpt-3.5-turbo',
+      messages: options.messages ?? [],
+      temperature: options.temperature ?? 0.6,
+      stream: true,
+      ...options,
+    }),
+  }, (d) => {
+    try {
+      const p = JSON.parse(d.toString().slice(5))
+      const c = p.choices[0].delta.content
+      c && process(c)
+    }
+    catch (error) {
+      // console.log(error);
+    }
+  })
+  return req.text
+}
+
+async function balance(key) {
+  const req = await openai({ key, url: 'https://api.openai.com/dashboard/billing/credit_grants', method: 'GET' })
+  try {
+    const json = JSON.parse(req)
+    const now = new Date().getTime() / 1000
+    const days = (json.grants.data[0].expires_at - now) / 86400
+    return `${json.total_available.toFixed(2)}/${json.total_granted}.00 ${days.toFixed(0)}天`
+  }
+  catch (error) {
+    return '--/-- --天'
+  }
+}
