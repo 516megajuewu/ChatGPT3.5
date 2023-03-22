@@ -46,48 +46,49 @@ const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
-// const recognition = null as any
-// const speechTimeoutId = null as any
+let recognition = null as any
+let speechTimeoutId = null as any
 
 const startSpeechRecognition = (event: MouseEvent) => {
   // 鼠标中键 提交
   if (event.button === 1) {
     // console.log(chatStore.getHistory(+uuid))
     handleSubmit()
+    return
   }
 
-  // clearTimeout(speechTimeoutId)
-  // speechTimeoutId = setTimeout(() => {
-  //   try {
-  //     // eslint-disable-next-line new-cap
-  //     recognition = new (window as any).webkitSpeechRecognition()
-  //     // recognition.lang = 'zh-CN'
-  //     recognition.value = prompt.value // 识别结果
-  //     recognition.continuous = true
-  //     recognition.interimResults = true
+  clearTimeout(speechTimeoutId)
+  speechTimeoutId = setTimeout(() => {
+    try {
+      // eslint-disable-next-line new-cap
+      recognition = new (window as any).webkitSpeechRecognition()
+      // recognition.lang = 'zh-CN'
+      recognition.value = prompt.value // 识别结果
+      recognition.continuous = true
+      recognition.interimResults = true
 
-  //     recognition.onresult = (event: any) => {
-  //       for (let i = event.resultIndex; i < event.results.length; i++) {
-  //         prompt.value = `${recognition.value}${event.results[i][0].transcript} `
-  //         if (event.results[i].isFinal)
-  //           recognition.value = prompt.value
-  //       }
-  //     }
-  //     recognition.start()
-  //   }
-  //   catch (error) {
+      recognition.onresult = (event: any) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          prompt.value = `${recognition.value}${event.results[i][0].transcript} `
+          if (event.results[i].isFinal)
+            recognition.value = prompt.value
+        }
+      }
+      recognition.start()
+    }
+    catch (error) {
 
-  //   }
-  // }, 350)
+    }
+  }, 350)
 }
 
 // 停止语音识别
 const stopSpeechRecognition = () => {
-  // clearTimeout(speechTimeoutId)
-  // if (recognition) {
-  //   recognition.stop()
-  //   recognition = null
-  // }
+  clearTimeout(speechTimeoutId)
+  if (recognition) {
+    recognition.stop()
+    recognition = null
+  }
 }
 
 function handleSubmit() {

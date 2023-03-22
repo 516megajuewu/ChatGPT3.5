@@ -4,6 +4,7 @@ import { NAvatar, NButton, useMessage } from 'naive-ui'
 import { useUserStore } from '@/store'
 import defaultAvatar from '@/assets/avatar.jpg'
 import { isString } from '@/utils/is'
+import { fetchBalance } from '@/api'
 
 const userStore = useUserStore()
 const message = useMessage()
@@ -17,15 +18,14 @@ const login = async () => {
 }
 
 const UpBalance = async () => {
-  userStore.updateUserInfo({ description: '无限制' })
-  // try {
-  //   userStore.updateUserInfo({ description: '查询中...' })
-  //   const res = await fetchBalance()
-  //   userStore.updateUserInfo({ description: `余额:${res}` })
-  // }
-  // catch (error) {
-  //   userStore.updateUserInfo({ description: '未知' })
-  // }
+  try {
+    userStore.updateUserInfo({ description: '查询中...' })
+    const res = await fetchBalance()
+    userStore.updateUserInfo({ description: `余额:${res}` })
+  }
+  catch (error) {
+    userStore.updateUserInfo({ description: '未知' })
+  }
 }
 // 初始完成 调用初始化余额
 onMounted(() => {
