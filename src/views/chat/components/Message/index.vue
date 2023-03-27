@@ -68,7 +68,7 @@ function handleRegenerate() {
       <AvatarComponent :image="inversion" />
     </div>
     <div class="overflow-hidden text-sm " :class="[inversion ? 'items-end' : 'items-start']">
-      <p class="text-xs text-[#b4bbc4]" :class="[inversion ? 'text-right' : 'text-left']">
+      <p class="text-xs" :class="[inversion ? 'text-right' : 'text-left', new Date().getTime() - new Date(dateTime ?? '').getTime() > 15 * 60000 ? 'text-[#b4bbc4]' : 'text-[#4b9e5f]']">
         {{ dateTime }}
       </p>
       <div

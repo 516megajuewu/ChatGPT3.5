@@ -46,66 +46,113 @@ const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
-let recognition = null as any
-let speechTimeoutId = null as any
+onMounted(() => {
+  // 获取聊天记录
+  setTimeout(() => {
+    if ('webkitSpeechRecognition' in window) {
+      if (window.recognition) {
+        window.recognition.prompt = prompt
+        return
+      }
+      const recognition = new webkitSpeechRecognition()
+      window.recognition = recognition
+      recognition.prompt = prompt
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.previousContent = ''
+      recognition.addEventListener('result', (event: any) => {
+        const transcript = event.results[event.results.length - 1][0].transcript
+        if (event.results[event.results.length - 1].isFinal) {
+          switch (transcript) {
+            case '发送':
+              recognition.prompt.value = recognition.previousContent
+              handleSubmit()
+              break
+            case '清空':
+              recognition.previousContent = ''
+              recognition.prompt.value = recognition.previousContent
+              break
+            default:
+              recognition.previousContent += `${transcript},`
+              recognition.prompt.value = recognition.previousContent
+              break
+          }
+        }
+        else {
+          recognition.prompt.value = recognition.previousContent + transcript
+        }
+      })
+      recognition.addEventListener('end', () => {
+        recognition.previousContent = recognition.prompt.value
+        document.visibilityState === 'visible' && recognition.start()
+      })
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible')
+          recognition.start()
+        else
+          recognition.stop()
+      })
+      recognition.start()
+    }
+  }, 500)
+})
+
+// let recognition = null as any
+// let speechTimeoutId = null as any
 
 const startSpeechRecognition = (event: MouseEvent) => {
   // 鼠标中键 提交
   if (event.button === 1) {
     // console.log(chatStore.getHistory(+uuid))
     handleSubmit()
-    return
   }
 
-  clearTimeout(speechTimeoutId)
-  speechTimeoutId = setTimeout(() => {
-    try {
-      // eslint-disable-next-line new-cap
-      recognition = new (window as any).webkitSpeechRecognition()
-      // recognition.lang = 'zh-CN'
-      recognition.value = prompt.value // 识别结果
-      recognition.continuous = true
-      recognition.interimResults = true
+  // clearTimeout(speechTimeoutId)
+  // speechTimeoutId = setTimeout(() => {
+  //   try {
+  //     // eslint-disable-next-line new-cap
+  //     recognition = new (window as any).webkitSpeechRecognition()
+  //     // recognition.lang = 'zh-CN'
+  //     recognition.value = prompt.value // 识别结果
+  //     recognition.continuous = true
+  //     recognition.interimResults = true
 
-      recognition.onresult = (event: any) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          prompt.value = `${recognition.value}${event.results[i][0].transcript} `
-          if (event.results[i].isFinal)
-            recognition.value = prompt.value
-        }
-      }
-      recognition.start()
-    }
-    catch (error) {
+  //     recognition.onresult = (event: any) => {
+  //       for (let i = event.resultIndex; i < event.results.length; i++) {
+  //         prompt.value = `${recognition.value}${event.results[i][0].transcript} `
+  //         if (event.results[i].isFinal)
+  //           recognition.value = prompt.value
+  //       }
+  //     }
+  //     recognition.start()
+  //   }
+  //   catch (error) {
 
-    }
-  }, 350)
+  //   }
+  // }, 350)
 }
 
 // 停止语音识别
 const stopSpeechRecognition = () => {
-  clearTimeout(speechTimeoutId)
-  if (recognition) {
-    recognition.stop()
-    recognition = null
-  }
+  // clearTimeout(speechTimeoutId)
+  // if (recognition) {
+  //   recognition.stop()
+  //   recognition = null
+  // }
 }
 
 function handleSubmit() {
   onConversation()
-}
-
-function itemStyle(index: number) {
-  const item = dataSources.value[index]
-  const diff = new Date().getTime() - new Date(item.dateTime).getTime()
-  if (diff > 5 * 60 * 1000)
-    return { color: 'gray' }
-  return {}
+  try {
+    prompt.value = ''
+    recognition.previousContent = ''
+  }
+  catch (error) {}
 }
 
 // !!有两个问题 index 和 不带聊天按钮
 function buildMessage(message: String, index: number) {
-  // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+  // 构建消息请求 读取数组从后往前读取 大于35分钟的不读取和 总长度大于4000删除两个
   const system = (chatStore.getHistory(+uuid) || { system: '' }).system
   const messages = [{ role: 'system', content: system }]
   // 消息长度
@@ -115,8 +162,8 @@ function buildMessage(message: String, index: number) {
     len += item.text.length
     if ((i > (index || 999)) || !item.text)
       return
-    if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 5 * 60 * 1000))
-      return messages.length <= 2 && item.inversion && (messages[1] = temp)
+    if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 15 * 60000))
+      return // messages.length <= 2 && item.inversion && (messages[1] = temp)
     len > 4000 && messages.shift()
     messages.push(temp)
   })
@@ -434,6 +481,12 @@ function handleClear() {
   // })
 }
 
+function handleInput() {
+  try {
+    window.recognition.previousContent = prompt.value
+  }
+  catch (error) {}
+}
 function handleEnter(event: KeyboardEvent) {
   if (!isMobile.value) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -447,6 +500,10 @@ function handleEnter(event: KeyboardEvent) {
       handleSubmit()
     }
   }
+  try {
+    window.recognition.previousContent = prompt.value
+  }
+  catch (error) {}
 }
 
 function handleStop() {
@@ -530,7 +587,7 @@ onUnmounted(() => {
             <div>
               <Message
                 v-for="(item, index) of dataSources" :key="index" :date-time="item.dateTime" :text="item.text"
-                :inversion="item.inversion" :error="item.error" :loading="item.loading" :style="itemStyle(index)"
+                :inversion="item.inversion" :error="item.error" :loading="item.loading"
                 @regenerate="onRegenerate(index)" @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
@@ -556,7 +613,7 @@ onUnmounted(() => {
                 </HoverButton> -->
           <NPopconfirm placement="bottom" @positive-click="handleClear">
             <template #trigger>
-              <NButton>
+              <NButton @mousedown="(event) => event.button === 1 && handleClear()">
                 <span class="text-xl text-[#4f555e] dark:text-white">
                   <SvgIcon icon="ri:delete-bin-line" />
                 </span>
@@ -569,13 +626,18 @@ onUnmounted(() => {
                     <SvgIcon icon="ri:download-2-line" />
                   </span>
                 </HoverButton> -->
+          <!-- <NButton v-if="!isMobile" @click="toggleUsingContext">
+            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+              <SvgIcon icon="ri:chat-SpeechIcon-line" />
+            </span>
+          </NButton> -->
           <NButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </NButton>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
-            <template #default="{ handleInput, handleBlur, handleFocus }">
+            <template #default="{ handleBlur, handleFocus }">
               <NInput
                 v-model:value="prompt" type="textarea" :placeholder="placeholder"
                 :autosize="{ minRows: 1, maxRows: 16 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur"
