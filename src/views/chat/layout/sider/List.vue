@@ -9,6 +9,7 @@ const { isMobile } = useBasicLayout()
 
 const appStore = useAppStore()
 const SystemRole = ref<string>('')
+// const isSpeak = ref<boolean>(false)
 const chatStore = useChatStore()
 
 const dataSources = computed(() => chatStore.history)
@@ -70,10 +71,21 @@ function isActive(uuid: number) {
                   </span>
                 </button>
               </template>
-              <span class="text">设置标题
+              <span class="text">
+                标题
                 <NInput v-model:value="item.title" type="text" placeholder="标题" />
-                <p class="text">设定角色<NInput v-model:value="item.system" type="textarea" placeholder="例: 设定背景,职业,性格,等等等等.. " />
-                </p>
+                <p class="text">系统<NInput v-model:value="item.system" type="textarea" placeholder="例: 设定背景,职业,性格,等等等等.. " /></p>
+                <!-- <NDivider>
+                  语音
+                </NDivider>
+                语音:
+                <NSwitch :value="item.options?.speak" />
+                <NDivider>
+                  参数
+                </NDivider>
+                模型:
+                <NSwitch :value="item.options?.model" /> -->
+
               </span>
             </NPopconfirm>
 
@@ -93,9 +105,26 @@ function isActive(uuid: number) {
                 </button>
               </template>
               <template v-else>
-                <!-- <button class="p-1">
-                  <SvgIcon icon="ri:edit-line" @click="handleEdit(item, true, $event)" />
-                </button> -->
+                <button class="p-1" :class="{ 'text-[#4b9e5f]': item.speak, 'text-[#353535]': !item.speak }" @click="item.speak = !item.speak">
+                  <SvgIcon icon="icon-park-twotone:people-speak" />
+                </button>
+                <!-- <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
+                  <template #trigger>
+                    <button class="p-1">
+                      <SvgIcon icon="ph:gear" />
+                    </button>
+                  </template>
+                  <span class="text" style="width: 230px;">
+                    <p>
+                      语音:&nbsp;&nbsp;&nbsp;
+                      <NSwitch v-model:value="item.speak" />
+                    </p>
+                    <span>
+                      模型:&nbsp;&nbsp;&nbsp;
+                      <NSelect v-model:value="item.model" :options="[{ label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo' }]" default-value="gpt-3.5-turbo" />
+                    </span>
+                  </span>
+                </NPopconfirm> -->
                 <NPopconfirm placement="bottom" @positive-click="handleDelete(index, $event)">
                   <template #trigger>
                     <button class="p-1">

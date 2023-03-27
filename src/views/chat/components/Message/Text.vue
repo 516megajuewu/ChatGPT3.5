@@ -70,6 +70,7 @@ defineExpose({ textRef })
     </template>
     <template v-else>
       <div ref="textRef" class="leading-relaxed break-words" @dblclick="copyText({ text: props.text ?? '' });message.success('复制成功');">
+        <!-- <div class="markdown-body" v-html="text" /> -->
         <div v-if="!inversion" class="markdown-body" v-html="text" />
         <div v-else class="whitespace-pre-wrap" v-text="text" />
       </div>

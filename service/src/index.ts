@@ -102,12 +102,22 @@ router.post('/verify', async (req, res) => {
   }
 })
 
-router.post('/voice', async (req, res) => {
+router.all('/voice', async (req, res) => {
   // 返回mp3 数据流
   res.setHeader('Content-type', 'audio/mp3')
   try {
-    const { text, voice, style, rate, pitch } = req.body
-    res.end(await Voice(text, voice, style, rate, pitch))
+    // 判断请求方式
+    if (req.method === 'POST') {
+      const { text, voice, style, rate, pitch } = req.body
+      res.end(await Voice(text, voice, style, rate, pitch))
+      return
+    }
+    // 判断请求方式
+    if (req.method === 'GET') {
+      const { text, voice, style, rate, pitch } = req.query
+      res.end(await Voice(text, voice, style, rate, pitch))
+      return
+    }
   }
   catch (error) {
     res.end(`调用错误: ${error.message}`)
@@ -136,12 +146,13 @@ async function openai(options, process = () => { }) {
     }),
   }, (d) => {
     try {
-      const p = JSON.parse(d.toString().slice(5))
-      const c = p.choices[0].delta.content
+      const a = d.toString().split('data: ')
+      let c = ''
+      a.forEach(t => t.length > 10 && (c += JSON.parse(t.trim()).choices[0].delta.content || ''))
       c && process(c)
     }
     catch (error) {
-      // console.log(error);
+      // console.log(error,a);
     }
   })
   return req.text

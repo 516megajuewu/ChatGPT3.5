@@ -15,13 +15,10 @@ declare namespace Chat {
 		isEdit: boolean
 		system: string
 		uuid: number
-		options?: {
-			speak: boolean, //朗读
-			engine:string, //引擎
-			model: string, //模型
-			max_tokens: number, 
-			temperature: number
-		}
+		speak?: boolean, //朗读
+		engine?:string, //引擎
+		model?: string, //模型
+		temperature?: number
 	}
 
 	interface ChatState {

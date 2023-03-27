@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, NPopconfirm, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NIcon, NInput, NPopconfirm, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -40,6 +40,7 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
+const isRecording = ref<boolean>(false)
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -48,12 +49,54 @@ const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
 Voice.prompt = prompt
 
+let speechTimeoutId: any
+
+let speechArray: Array<string> = []
+let speechText = ''
+
+const speechHandle = (text: string) => {
+  if (!text) {
+    speechText = ''
+    return
+  }
+  const pd = text === '.' ? text : text.slice(speechText.length, 99999)
+  speechText += pd
+  // 拼接字符串 判断是否有非中文英文数字 如果有则记录位置 并且截取字符串
+  const reg = /[\u4E00-\u9FA5a-zA-Z0-9]+/g
+  if (!reg.test(pd)) {
+    const a = speechText.match(reg)
+    if (!a)
+      return
+
+    for (let i = speechArray.length; i < a.length; i++) {
+      speechArray.push(a[i])
+      Voice.speak(a[i])
+    }
+  }
+  if (text === '.') {
+    speechText = ''
+    speechArray = []
+  }
+}
+
 const startSpeechRecognition = (event: MouseEvent) => {
   // 鼠标中键 提交
   if (event.button === 1) {
     // console.log(chatStore.getHistory(+uuid))
     handleSubmit()
   }
+
+  clearTimeout(speechTimeoutId)
+  speechTimeoutId = setTimeout(() => {
+    isRecording.value = true
+    Voice.recognition.start()
+  }, 150)
+}
+
+const stopSpeechRecognition = () => {
+  clearTimeout(speechTimeoutId)
+  Voice.recognition.stop()
+  isRecording.value = false
 }
 
 function handleSubmit() {
@@ -75,7 +118,7 @@ function buildMessage(message: String, index: number) {
     if ((i > (index || 999)) || !item.text)
       return
     if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 15 * 60000))
-      return // messages.length <= 2 && item.inversion && (messages[1] = temp)
+      return messages.length <= 2 && index && item.inversion && (messages[1] = temp)
     len > 4000 && messages.shift()
     messages.push(temp)
   })
@@ -136,6 +179,7 @@ async function onConversation() {
   try {
     // const lastText = ''
     // const system = (chatStore.getHistory(+uuid) || { system: '' }).system
+    const speak = chatStore.getHistory(+uuid)?.speak
     const fetchChatAPIOnce = async () => {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, dataSources.value.length - 1)
@@ -160,6 +204,7 @@ async function onConversation() {
                 requestOptions: { prompt: message },
               },
             )
+            speak && speechHandle(responseText)
             scrollToBottom()
           }
           catch (error) {
@@ -169,6 +214,7 @@ async function onConversation() {
       })
     }
     await fetchChatAPIOnce()
+    speak && speechHandle('.')
   }
   catch (error: any) {
     const errorMessage = error?.message ?? t('common.wrong')
@@ -252,6 +298,7 @@ async function onRegenerate(index: number) {
   )
 
   try {
+    const speak = chatStore.getHistory(+uuid)?.speak
     const fetchChatAPIOnce = async () => {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, index)
@@ -276,6 +323,7 @@ async function onRegenerate(index: number) {
                 requestOptions: { prompt: message },
               },
             )
+            speak && speechHandle(responseText)
             scrollToBottom()
           }
           catch (error) {
@@ -285,6 +333,7 @@ async function onRegenerate(index: number) {
       })
     }
     await fetchChatAPIOnce()
+    speak && speechHandle('.')
   }
   catch (error: any) {
     if (error.message === 'canceled') {
@@ -477,7 +526,7 @@ onUnmounted(() => {
       v-if="isMobile" :using-context="usingContext" @export="handleExport"
       @toggle-using-context="toggleUsingContext"
     />
-    <main class="flex-1 overflow-hidden">
+    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper" class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
@@ -545,10 +594,19 @@ onUnmounted(() => {
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleBlur, handleFocus }">
               <NInput
-                v-model:value="prompt" type="textarea" :placeholder="placeholder"
+                v-model:value="prompt" type="textarea" :placeholder="placeholder" clearable :precision="0"
                 :autosize="{ minRows: 1, maxRows: 16 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur"
-                @keypress="handleEnter" @mousedown="startSpeechRecognition"
-              />
+                @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
+              >
+                <template #suffix>
+                  <NIcon size="25" depth="1" :color="isRecording ? '#4b9e5f' : ''">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><path d="M12 15c1.66 0 2.99-1.34 2.99-3L15 6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1.2-9.1c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2l-.01 6.2c0 .66-.53 1.2-1.19 1.2s-1.2-.54-1.2-1.2V5.9zm6.5 6.1c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.41 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" fill="currentColor" /></svg>
+                  </NIcon>
+                  <!-- <span class="text-xl" :class="{ 'text-[#4b9e5f]': isRecording }">
+                    <SvgIcon icon="ic:outline-keyboard-voice" width="25" height="25" />
+                  </span> -->
+                </template>
+              </NInput>
             </template>
           </NAutoComplete>
           <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
