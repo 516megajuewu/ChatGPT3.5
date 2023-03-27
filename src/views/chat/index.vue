@@ -10,6 +10,7 @@ import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
+import Voice from './Voice'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
@@ -23,7 +24,6 @@ let controller = new AbortController()
 const route = useRoute()
 const dialog = useDialog()
 const ms = useMessage()
-
 const chatStore = useChatStore()
 
 useCopyCode()
@@ -46,59 +46,7 @@ const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
-onMounted(() => {
-  // 获取聊天记录
-  setTimeout(() => {
-    if ('webkitSpeechRecognition' in window) {
-      if (window.recognition) {
-        window.recognition.prompt = prompt
-        return
-      }
-      const recognition = new webkitSpeechRecognition()
-      window.recognition = recognition
-      recognition.prompt = prompt
-      recognition.continuous = true
-      recognition.interimResults = true
-      recognition.previousContent = ''
-      recognition.addEventListener('result', (event: any) => {
-        const transcript = event.results[event.results.length - 1][0].transcript
-        if (event.results[event.results.length - 1].isFinal) {
-          switch (transcript) {
-            case '发送':
-              recognition.prompt.value = recognition.previousContent
-              handleSubmit()
-              break
-            case '清空':
-              recognition.previousContent = ''
-              recognition.prompt.value = recognition.previousContent
-              break
-            default:
-              recognition.previousContent += `${transcript},`
-              recognition.prompt.value = recognition.previousContent
-              break
-          }
-        }
-        else {
-          recognition.prompt.value = recognition.previousContent + transcript
-        }
-      })
-      recognition.addEventListener('end', () => {
-        recognition.previousContent = recognition.prompt.value
-        document.visibilityState === 'visible' && recognition.start()
-      })
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible')
-          recognition.start()
-        else
-          recognition.stop()
-      })
-      recognition.start()
-    }
-  }, 500)
-})
-
-// let recognition = null as any
-// let speechTimeoutId = null as any
+Voice.prompt = prompt
 
 const startSpeechRecognition = (event: MouseEvent) => {
   // 鼠标中键 提交
@@ -106,48 +54,12 @@ const startSpeechRecognition = (event: MouseEvent) => {
     // console.log(chatStore.getHistory(+uuid))
     handleSubmit()
   }
-
-  // clearTimeout(speechTimeoutId)
-  // speechTimeoutId = setTimeout(() => {
-  //   try {
-  //     // eslint-disable-next-line new-cap
-  //     recognition = new (window as any).webkitSpeechRecognition()
-  //     // recognition.lang = 'zh-CN'
-  //     recognition.value = prompt.value // 识别结果
-  //     recognition.continuous = true
-  //     recognition.interimResults = true
-
-  //     recognition.onresult = (event: any) => {
-  //       for (let i = event.resultIndex; i < event.results.length; i++) {
-  //         prompt.value = `${recognition.value}${event.results[i][0].transcript} `
-  //         if (event.results[i].isFinal)
-  //           recognition.value = prompt.value
-  //       }
-  //     }
-  //     recognition.start()
-  //   }
-  //   catch (error) {
-
-  //   }
-  // }, 350)
-}
-
-// 停止语音识别
-const stopSpeechRecognition = () => {
-  // clearTimeout(speechTimeoutId)
-  // if (recognition) {
-  //   recognition.stop()
-  //   recognition = null
-  // }
 }
 
 function handleSubmit() {
   onConversation()
-  try {
-    prompt.value = ''
-    recognition.previousContent = ''
-  }
-  catch (error) {}
+  prompt.value = ''
+  Voice.previousContent = ''
 }
 
 // !!有两个问题 index 和 不带聊天按钮
@@ -482,10 +394,7 @@ function handleClear() {
 }
 
 function handleInput() {
-  try {
-    window.recognition.previousContent = prompt.value
-  }
-  catch (error) {}
+  Voice.previousContent = prompt.value
 }
 function handleEnter(event: KeyboardEvent) {
   if (!isMobile.value) {
@@ -500,10 +409,7 @@ function handleEnter(event: KeyboardEvent) {
       handleSubmit()
     }
   }
-  try {
-    window.recognition.previousContent = prompt.value
-  }
-  catch (error) {}
+  Voice.previousContent = prompt.value
 }
 
 function handleStop() {
@@ -641,8 +547,7 @@ onUnmounted(() => {
               <NInput
                 v-model:value="prompt" type="textarea" :placeholder="placeholder"
                 :autosize="{ minRows: 1, maxRows: 16 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur"
-                @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
-                @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition"
+                @keypress="handleEnter" @mousedown="startSpeechRecognition"
               />
             </template>
           </NAutoComplete>

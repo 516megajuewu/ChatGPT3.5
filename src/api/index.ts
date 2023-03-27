@@ -71,6 +71,19 @@ export function fetchBalance<T = any>() {
   })
 }
 
+export function fetchVoice<T = any>(
+  params: {
+    text: string
+    voice?: string
+    style?: string
+    rate?: number
+    pitch?: number },
+) {
+  return post<T>({
+    url: '/Voice',
+    data: { text: params.text, voice: params.voice, style: params.style, rate: params.rate, pitch: params.pitch },
+  })
+}
 // export function fetchSession<T>() {
 //   return post<T>({
 //     url: '/session',
