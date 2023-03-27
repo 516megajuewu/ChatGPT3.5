@@ -61,10 +61,20 @@ const speechHandle = (text: string) => {
   }
   const pd = text === '.' ? text : text.slice(speechText.length, 99999)
   speechText += pd
+  // 过滤掉文本 ```    ``` 之间的内容
+  let newStr = speechText
+  const len = speechText.split('```').length - 1
+  if (len % 2 === 0) {
+    const regex = /```[\s\S]*?```/g
+    // 过滤掉代码段
+    newStr = speechText.replace(regex, '')
+  }
+  if (len % 2 === 1)
+    return
   // 拼接字符串 判断是否有非中文英文数字 如果有则记录位置 并且截取字符串
   const reg = /[\u4E00-\u9FA5a-zA-Z0-9]+/g
   if (!reg.test(pd)) {
-    const a = speechText.match(reg)
+    const a = newStr.match(reg)
     if (!a)
       return
 

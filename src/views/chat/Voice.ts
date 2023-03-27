@@ -45,6 +45,8 @@ class Voice {
       this.isSpeak = false
       return
     }
+    // 需要换成缓存
+    // const audio = new Audio(`https://aiapps.top/Voice?text=${encodeURI(words)}`)
     const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
     audio.onended = () => {
       this.isSpeak = false
