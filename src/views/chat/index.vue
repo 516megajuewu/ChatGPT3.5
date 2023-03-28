@@ -53,7 +53,8 @@ let speechTimeoutId: any
 
 let speechArray: Array<string> = []
 let speechText = ''
-
+let touchstartY = 0
+let touchendY = 0
 const speechHandle = (text: string) => {
   if (!text) {
     speechText = ''
@@ -72,11 +73,11 @@ const speechHandle = (text: string) => {
   if (len % 2 === 1)
     return
   // 拼接字符串 判断是否有非中文英文数字 如果有则记录位置 并且截取字符串
-  // const reg = /[\u4E00-\u9FA5a-zA-Z0-9 \+\*\/\|,~]+/g // 方法一
-  const reg = /[。！？；\n]/g
-  if (reg.test(pd)) { // 方法一 加感叹号
-    // const a = newStr.match(reg) // 方法一
-    const a = newStr.split(reg).filter(item => item)
+  const reg = /[\u4E00-\u9FA5a-zA-Z0-9 \+\*\/\|,~]+/g // 方法一
+  // const reg = /[。！？；\n]/g
+  if (!reg.test(pd)) { // 方法一 加感叹号
+    const a = newStr.match(reg) // 方法一
+    // const a = newStr.split(reg).filter(item => item)
     if (!a)
       return
 
@@ -91,7 +92,12 @@ const speechHandle = (text: string) => {
   }
 }
 
-const startSpeechRecognition = (event: MouseEvent) => {
+const startSpeechRecognition = (event: any) => {
+  try {
+    touchstartY = event.touches[0].clientY
+  }
+  catch (error) {}
+
   // 鼠标中键 提交
   if (event.button === 1) {
     // console.log(chatStore.getHistory(+uuid))
@@ -101,14 +107,26 @@ const startSpeechRecognition = (event: MouseEvent) => {
   clearTimeout(speechTimeoutId)
   speechTimeoutId = setTimeout(() => {
     isRecording.value = true
-    Voice.recognition.start()
+    Voice.start()
   }, 150)
+  return false
 }
 
-const stopSpeechRecognition = () => {
+const stopSpeechRecognition = (event: any) => {
   clearTimeout(speechTimeoutId)
-  Voice.recognition.stop()
+  Voice.stop()
   isRecording.value = false
+
+  try {
+    touchendY = event.changedTouches[0].clientY
+    if (touchstartY - touchendY > 100) // 向上滑动
+      handleSubmit()
+    // if (touchendY - touchstartY > 100) { // 向下滑动 清除输入框
+    //   prompt.value = ''
+    //   Voice.previousContent = ''
+    // }
+  }
+  catch (error) {}
 }
 
 function handleSubmit() {
@@ -540,7 +558,7 @@ onUnmounted(() => {
       v-if="isMobile" :using-context="usingContext" @export="handleExport"
       @toggle-using-context="toggleUsingContext"
     />
-    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition">
+    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition" @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition" @contextmenu="(e) => e.preventDefault()">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper" class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"

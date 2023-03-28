@@ -84,6 +84,17 @@ export function fetchVoice<T = any>(
     data: { text: params.text, voice: params.voice, style: params.style, rate: params.rate, pitch: params.pitch },
   })
 }
+
+export function fetchAudio<T = any>(
+  params: {
+    audio: String
+  },
+) {
+  return post<T>({
+    url: '/audio',
+    data: { audio: params.audio },
+  })
+}
 // export function fetchSession<T>() {
 //   return post<T>({
 //     url: '/session',

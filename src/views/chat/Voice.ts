@@ -1,11 +1,18 @@
+import Recorder from 'recorder-core'
+import 'recorder-core/src/engine/wav'
+import { fetchAudio } from '@/api'
+
 class Voice {
   prompt: any
   recognition: any
   previousContent: string | undefined
   speakList: Array<any> = []
   isSpeak = false
+  isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  recorder = new Recorder({ type: 'wav', sampleRate: 11025, bitRate: 16 })
+
   constructor() {
-    if ('webkitSpeechRecognition' in window) {
+    if ('webkitSpeechRecognition' in window && !this.isMobile) {
       // eslint-disable-next-line new-cap
       this.recognition = new (window as any).webkitSpeechRecognition()
       this.recognition.continuous = true
@@ -26,6 +33,34 @@ class Voice {
       })
       // this.recognition.start()
     }
+  }
+
+  start() {
+    if (this.isMobile) {
+      return this.recorder.open(() => {
+        this.recorder.start()
+      })
+    }
+    this.recognition.start()
+  }
+
+  stop() {
+    if (this.isMobile) {
+      return this.recorder.stop((blob: Blob) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onload = () => {
+          const base64 = reader.result || ''
+          // 去掉base64头部
+          fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
+            // handle rejected promise
+            this.prompt.value += `${data.result},`
+          })
+        }
+        this.recorder.close()
+      })
+    }
+    this.recognition.stop()
   }
 
   parseSpeak(text: string) {

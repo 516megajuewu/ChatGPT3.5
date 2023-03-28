@@ -124,6 +124,20 @@ router.all('/voice', async (req, res) => {
   }
 })
 
+router.post('/audio', async (req, res) => {
+  if (!req.body.audio)
+    return res.end('')
+
+  // 判断请求方式
+  const data = await Request('https://asr.tulingyun.com/api/web', { data: `method=file&mime=file&upfile_b64=${encodeURIComponent(req.body.audio)}` })
+  try {
+    res.send(JSON.parse(data.text))
+  }
+  catch (error) {
+    res.end('') // 识别失败
+  }
+})
+
 app.use('', router)
 app.use('/api', router)
 
