@@ -83,7 +83,7 @@ const speechHandle = (text: string) => {
 
     for (let i = speechArray.length; i < a.length; i++) {
       speechArray.push(a[i])
-      a[i].length >= 3 && Voice.speak(a[i])
+      a[i].length >= 2 && Voice.speak(a[i])
     }
   }
   if (text === '。') {
@@ -97,6 +97,8 @@ const startSpeechRecognition = (event: any) => {
     touchstartY = event.touches[0].clientY
   }
   catch (error) {}
+  if (isRecording.value)
+    return event.preventDefault()
 
   // 鼠标中键 提交
   if (event.button === 1) {
@@ -116,7 +118,6 @@ const stopSpeechRecognition = (event: any) => {
   clearTimeout(speechTimeoutId)
   Voice.stop()
   isRecording.value = false
-
   try {
     touchendY = event.changedTouches[0].clientY
     if (touchstartY - touchendY > 100) // 向上滑动

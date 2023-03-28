@@ -52,9 +52,11 @@ class Voice {
         reader.onload = () => {
           const base64 = reader.result || ''
           // 去掉base64头部
+          const temp = this.prompt.value
+          this.prompt.value = `${this.prompt.value} 识别中...`
           fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
             // handle rejected promise
-            this.prompt.value += `${data.result},`
+            data.result ? (this.prompt.value = `${temp}${data.result},`) : (this.prompt.value = temp)
           })
         }
         this.recorder.close()
