@@ -8,10 +8,16 @@ class Voice {
   previousContent: string | undefined
   speakList: Array<any> = []
   isSpeak = false
-  isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   recorder = new Recorder({ type: 'wav', sampleRate: 11025, bitRate: 16 })
+  get isMobile() {
+    return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)
+  }
 
   constructor() {
+    this.init()
+  }
+
+  init() {
     if ('webkitSpeechRecognition' in window && !this.isMobile) {
       // eslint-disable-next-line new-cap
       this.recognition = new (window as any).webkitSpeechRecognition()
@@ -41,6 +47,7 @@ class Voice {
         this.recorder.start()
       })
     }
+    this.recognition.continuous || this.init()
     this.recognition.start()
   }
 
@@ -62,6 +69,7 @@ class Voice {
         this.recorder.close()
       })
     }
+    this.recognition.continuous || this.init()
     this.recognition.stop()
   }
 
