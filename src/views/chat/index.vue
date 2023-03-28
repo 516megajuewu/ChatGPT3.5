@@ -95,6 +95,8 @@ const speechHandle = (text: string) => {
 const startSpeechRecognition = (event: any) => {
   try {
     touchstartY = event.touches[0].clientY
+    if (event.target.tagName === 'IMG')
+      event.preventDefault()
   }
   catch (error) {}
   if (isRecording.value)
@@ -110,17 +112,17 @@ const startSpeechRecognition = (event: any) => {
   speechTimeoutId = setTimeout(() => {
     isRecording.value = true
     Voice.start()
-  }, 150)
+  }, 175)
   return false
 }
 
 const stopSpeechRecognition = (event: any) => {
   clearTimeout(speechTimeoutId)
-  Voice.stop()
+  isRecording.value && Voice.stop()
   isRecording.value = false
   try {
     touchendY = event.changedTouches[0].clientY
-    if (touchstartY - touchendY > 100) // 向上滑动
+    if (touchstartY - touchendY > 100 && !prompt.value.includes('识别中...')) // 向上滑动
       handleSubmit()
     // if (touchendY - touchstartY > 100) { // 向下滑动 清除输入框
     //   prompt.value = ''
