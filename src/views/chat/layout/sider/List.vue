@@ -74,7 +74,7 @@ function isActive(uuid: number) {
               <span class="text">
                 标题
                 <NInput v-model:value="item.title" type="text" placeholder="标题" />
-                <p class="text">系统<NInput v-model:value="item.system" type="textarea" placeholder="例: 设定背景,职业,性格,等等等等.. " /></p>
+                <p class="text">设定<NInput v-model:value="item.system" type="textarea" placeholder="人物角色设定, 可以参考 Prompt Store " /></p>
                 <!-- <NDivider>
                   语音
                 </NDivider>
