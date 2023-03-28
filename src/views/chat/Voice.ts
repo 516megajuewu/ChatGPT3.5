@@ -37,6 +37,7 @@ class Voice {
       this.recognition.addEventListener('end', () => {
         this.previousContent = this.prompt.value
       })
+
       // this.recognition.start()
     }
   }
