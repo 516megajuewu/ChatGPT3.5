@@ -129,8 +129,8 @@ function buildMessage(message: String, index: number) {
     len += item.text.length
     if ((i > (index || 999)) || !item.text)
       return
-    if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 15 * 60000))
-      return messages.length <= 2 && index && item.inversion && (messages[1] = temp)
+    if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 15 * 60000) && index === 0)
+      return // messages.length <= 2 && index && item.inversion && (messages[1] = temp)
     len > 4000 && messages.shift()
     messages.push(temp)
   })
@@ -194,7 +194,7 @@ async function onConversation() {
     const speak = chatStore.getHistory(+uuid)?.speak
     const fetchChatAPIOnce = async () => {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
-      const messages = buildMessage(message, dataSources.value.length - 1)
+      const messages = buildMessage(message, 0)
       const options = { messages }
       await fetchChatProcess({
         options,
@@ -294,12 +294,14 @@ async function onRegenerate(index: number) {
     options = { ...requestOptions.options }
 
   loading.value = true
+  // 读取历史dateTime
+  const dateTime = dataSources.value[index].dateTime
 
   updateChat(
     +uuid,
     index,
     {
-      dateTime: new Date().toLocaleString(),
+      dateTime,
       text: '',
       inversion: false,
       error: false,
@@ -326,7 +328,7 @@ async function onRegenerate(index: number) {
               +uuid,
               index,
               {
-                dateTime: new Date().toLocaleString(),
+                dateTime,
                 text: responseText ?? '',
                 inversion: false,
                 error: false,
@@ -365,7 +367,7 @@ async function onRegenerate(index: number) {
       +uuid,
       index,
       {
-        dateTime: new Date().toLocaleString(),
+        dateTime,
         text: errorMessage,
         inversion: false,
         error: true,
