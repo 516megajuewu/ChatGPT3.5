@@ -2,7 +2,7 @@ class Voice {
   prompt: any
   recognition: any
   previousContent: string | undefined
-  speakList: Array<string | undefined> = []
+  speakList: Array<any> = []
   isSpeak = false
   constructor() {
     if ('webkitSpeechRecognition' in window) {
@@ -37,20 +37,22 @@ class Voice {
   }
 
   speak(text: string | undefined) {
+    text && this.speakList.push(new Audio(`https://aiapps.top/Voice?text=${encodeURI(text)}`))
+    // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
     if (this.isSpeak)
-      return text && this.speakList.push(text)
-    this.isSpeak = true
-    const words = text ?? this.speakList.shift()
-    if (!words) {
+      return
+    const audio = this.speakList.shift()
+    if (!audio) {
       this.isSpeak = false
       return
     }
+    this.isSpeak = true
     // 需要换成缓存
     // const audio = new Audio(`https://aiapps.top/Voice?text=${encodeURI(words)}`)
-    const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
+    // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
     audio.onended = () => {
       this.isSpeak = false
-      this.speak(this.speakList.shift())
+      this.speak(undefined)
     }
     audio.play()
   }

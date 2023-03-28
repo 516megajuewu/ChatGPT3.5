@@ -29,7 +29,7 @@ interface Emit {
 // const { iconRender } = useIconRender()
 
 const textRef = ref<HTMLElement>()
-
+const state = ref('text-[#b4bbc4]')
 // const options = [
 //   {
 //     label: t('chat.copy'),
@@ -57,6 +57,15 @@ function handleSelect(key: 'copyRaw' | 'copyText' | 'delete') {
 function handleRegenerate() {
   emit('regenerate')
 }
+
+function upState(time: string | undefined) {
+  const w = 15 * 60000 - (new Date().getTime() - new Date(time ?? '').getTime())
+  if (w > 0) {
+    state.value = 'text-[#4b9e5f]'
+    setTimeout(() => state.value = 'text-[#b4bbc4]', w)
+  }
+  return state.value
+}
 </script>
 
 <template>
@@ -68,7 +77,7 @@ function handleRegenerate() {
       <AvatarComponent :image="inversion" />
     </div>
     <div class="overflow-hidden text-sm " :class="[inversion ? 'items-end' : 'items-start']">
-      <p class="text-xs" :class="[inversion ? 'text-right' : 'text-left', new Date().getTime() - new Date(dateTime ?? '').getTime() > 15 * 60000 ? 'text-[#b4bbc4]' : 'text-[#4b9e5f]']">
+      <p class="text-xs " :class="[inversion ? 'text-right' : 'text-left', upState(dateTime)]">
         {{ dateTime }}
       </p>
       <div
