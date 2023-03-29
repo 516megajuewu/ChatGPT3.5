@@ -72,7 +72,6 @@ class Voice {
             const data = await response.json()
             this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
           })
-
           // fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
           //   // handle rejected promise
           //   // data.result ? (this.prompt.value = `${temp}${data.result},`) : (this.prompt.value = temp)
