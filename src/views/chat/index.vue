@@ -147,12 +147,13 @@ function buildMessage(message: String, index: number) {
   let len = system.length + message.length
   usingContext.value && dataSources.value.forEach((item, i) => {
     const temp = { role: item.inversion ? 'user' : 'assistant', content: item.text }
-    len += item.text.length
+
     if ((i > (index || 999)) || !item.text)
       return
     if (((new Date().getTime() - new Date(item.dateTime).getTime()) > 15 * 60000) && index === 0)
       return // messages.length <= 2 && index && item.inversion && (messages[1] = temp)
-    len > 4000 && messages.shift()
+    len += item.text.length
+    len > 4000 && messages.slice(1, 1)
     messages.push(temp)
   })
   usingContext.value || messages.push({ role: 'user', content: message as string })
