@@ -83,7 +83,7 @@ class Voice {
   }
 
   speak(text: string | undefined) {
-    text && this.speakList.push(new Audio(`https://aiapps.top/Voice?text=${encodeURI(text)}`))
+    text && this.speakList.push(new Audio(`${import.meta.env.VITE_GLOB_API_URL}/Voice?text=${encodeURI(text)}`))
     // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
     if (this.isSpeak)
       return

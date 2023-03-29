@@ -1,3 +1,6 @@
+const fs = require('fs')
+const os = require('os')
+const crypto = require('crypto')
 const edge = require('./edge').service
 const azure = require('./azure').service
 /**
@@ -10,6 +13,14 @@ const azure = require('./azure').service
  * @returns
  */
 async function Voice(text = 'Hello World', voice = 'zh-CN-XiaoyiNeural', style = 'affectionate', rate = '0', pitch = '0') {
+  const cacheDir = `${os.tmpdir()}/speechCache/`
+  const cacheKey = text + voice + style + rate + pitch
+  const cacheFile = `${cacheDir + crypto.createHash('md5').update(cacheKey).digest('hex')}.mp3`
+  if (!fs.existsSync(cacheDir))
+    fs.mkdirSync(cacheDir, { recursive: true })
+  if (fs.existsSync(cacheFile))
+    return fs.readFileSync(cacheFile)
+
   const params = {
     speakText: text,
     voiceName: voice,
@@ -33,11 +44,15 @@ async function Voice(text = 'Hello World', voice = 'zh-CN-XiaoyiNeural', style =
   // 源码地址 https://github.com/wxxxcxx/ms-ra-forwarder
 
   try {
-    return await edge.convert(ssml, params.voiceFormat)
+    const data = await edge.convert(ssml, params.voiceFormat)
+    fs.writeFileSync(cacheFile, data)
+    return data
   }
   catch (error) {
     try {
-      return await azure.convert(ssml, params.voiceFormat)
+      const data = await azure.convert(ssml, params.voiceFormat)
+      fs.writeFileSync(cacheFile, data)
+      return data
     }
     catch (error) {}
   }
