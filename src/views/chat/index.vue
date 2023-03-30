@@ -73,11 +73,11 @@ const speechHandle = (text: string) => {
   if (len % 2 === 1)
     return
   // 拼接字符串 判断是否有非中文英文数字 如果有则记录位置 并且截取字符串
-  const reg = /[\u4E00-\u9FA5a-zA-Z0-9 \+\*\/\|,~、，.'"]+/g // 方法一
-  // const reg = /[。！？；\n]/g
-  if (!reg.test(pd)) { // 方法一 加感叹号
-    const a = newStr.match(reg) // 方法一
-    // const a = newStr.split(reg).filter(item => item)
+  // const reg = /[\u4E00-\u9FA5a-zA-Z0-9 \+\*\/\|,~、，.'"\(\)\{\}\[\]]+/g // 方法一
+  const reg = /[。！？；\n]/g
+  if (reg.test(pd)) { // 方法一 加感叹号
+    // const a = newStr.match(reg) // 方法一
+    const a = newStr.split(reg).filter(item => item)
     if (!a)
       return
 
