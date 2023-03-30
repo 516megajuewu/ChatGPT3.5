@@ -78,19 +78,39 @@
 		</div>
 	</div>
 	<script>
-		if ('serviceWorker' in navigator) {
-		  // 注册 service worker
-		  navigator.serviceWorker.register('/sw.js').then((registration) => {
-		    // 如果有未激活的 service worker，则激活它
-		    if (registration.waiting)
-		      registration.waiting.postMessage({ action: 'skipWaiting' })
-		  })
-		  // 监听 service worker 的更新事件
-		  navigator.serviceWorker.addEventListener('controllerchange', () => {
-		    // eslint-disable-next-line  no-console
-		    console.log('Service worker updated')
-		  })
-		}
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then((registration) => {
+    // 监听 Service Worker 的 install 事件
+    registration.addEventListener('install', (event) => {
+      // 安装完成后立即激活新版本的 Service Worker
+      if (self.skipWaiting)
+        self.skipWaiting()
+    })
+
+    // 监听 Service Worker 的 activate 事件
+    registration.addEventListener('activate', (event) => {
+      event.waitUntil(
+        // 删除旧版本的缓存
+        caches.keys().then((cacheNames) => {
+          return Promise.all(
+            cacheNames.filter((cacheName) => {
+              // 如果缓存名称中包含当前 Service Worker 的版本号，
+              // 则说明该缓存是旧版本的缓存，需要被删除
+              return /sw\d+$/.test(cacheName) && cacheName !== registration.scope
+            }).map((cacheName) => {
+              return caches.delete(cacheName)
+            }),
+          )
+        }).then(() => {
+          // 激活新版本的 Service Worker
+          if (self.clients && self.clients.claim)
+            self.clients.claim()
+        }),
+      )
+    })
+  })
+}
 	</script>
 	<script type="module" src="/src/main.ts"></script>
 	<script>
