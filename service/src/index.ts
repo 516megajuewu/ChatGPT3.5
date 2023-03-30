@@ -145,7 +145,7 @@ app.listen(3002, () => globalThis.console.log('Server is running on port 3002'))
 
 async function openai(options, process = () => { }) {
   const req = await Request(options.url ?? 'https://api.openai.com/v1/chat/completions', {
-    // agent: new ProxyAgent(Agent),
+    // agent: new ProxyAgent('http://127.0.0.1:7890'),
     method: options.method ?? 'POST',
     headers: {
       'Content-Type': 'application/json',

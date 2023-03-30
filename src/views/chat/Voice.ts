@@ -1,5 +1,6 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/wav'
+import { fetchAudio } from '@/api'
 
 class Voice {
   prompt: any
@@ -60,23 +61,23 @@ class Voice {
           const base64 = reader.result || ''
           // 去掉base64头部
           this.prompt.value = `${this.prompt.value} 识别中...`
-          fetch('http://49.232.160.92:3002/audio', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              audio: base64.toString().replace(/^data:audio\/\w+;base64,/, ''),
-            }),
-          }).then(async (response) => {
-            const data = await response.json()
-            this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
-          })
-          // fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
-          //   // handle rejected promise
-          //   // data.result ? (this.prompt.value = `${temp}${data.result},`) : (this.prompt.value = temp)
+          // fetch('https://49.232.160.92:3002/audio', {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({
+          //     audio: base64.toString().replace(/^data:audio\/\w+;base64,/, ''),
+          //   }),
+          // }).then(async (response) => {
+          //   const data = await response.json()
           //   this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
           // })
+          fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
+            // handle rejected promise
+            // data.result ? (this.prompt.value = `${temp}${data.result},`) : (this.prompt.value = temp)
+            this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
+          })
         }
         this.recorder.close()
       })
@@ -94,7 +95,8 @@ class Voice {
   }
 
   speak(text: string | undefined) {
-    text && this.speakList.push(new Audio(`http://49.232.160.92:3002/voice?text=${encodeURI(text)}`))
+    text && this.speakList.push(new Audio(`${import.meta.env.VITE_GLOB_API_URL}/voice?text=${encodeURI(text)}`))
+    // text && this.speakList.push(new Audio(`https://49.232.160.92:3002/voice?text=${encodeURI(text)}`))
     // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
     if (this.isSpeak)
       return

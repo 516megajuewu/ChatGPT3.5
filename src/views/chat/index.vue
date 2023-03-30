@@ -143,6 +143,9 @@ function buildMessage(message: String, index: number) {
   // 构建消息请求 读取数组从后往前读取 大于35分钟的不读取和 总长度大于4000删除两个
   const system = (chatStore.getHistory(+uuid) || { system: '' }).system
   const messages = [{ role: 'system', content: system }]
+  if (!message)
+    return messages
+
   // 消息长度
   let len = system.length + message.length
   usingContext.value && dataSources.value.forEach((item, i) => {
