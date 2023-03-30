@@ -13,7 +13,7 @@ import HeaderComponent from './components/Header/index.vue'
 import Voice from './Voice'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore } from '@/store'
+import { useAppStore, useChatStore, usePromptStore } from '@/store'
 import { fetchChatProcess } from '@/api'
 import { t } from '@/locales'
 
@@ -23,7 +23,9 @@ let controller = new AbortController()
 
 const route = useRoute()
 const dialog = useDialog()
+
 const ms = useMessage()
+const appStore = useAppStore()
 const chatStore = useChatStore()
 
 useCopyCode()
@@ -53,8 +55,12 @@ let speechTimeoutId: any
 
 let speechArray: Array<string> = []
 let speechText = ''
-let touchstartY = 0
-let touchendY = 0
+const touch = {
+  SX: 0,
+  SY: 0,
+  EX: 0,
+  EY: 0,
+}
 const speechHandle = (text: string) => {
   if (!text) {
     speechText = ''
@@ -94,7 +100,8 @@ const speechHandle = (text: string) => {
 
 const startSpeechRecognition = (event: any) => {
   try {
-    touchstartY = event.touches[0].clientY
+    touch.SX = event.touches[0].clientX
+    touch.SY = event.touches[0].clientY
     if (event.target.tagName === 'IMG')
       event.preventDefault()
   }
@@ -121,10 +128,17 @@ const stopSpeechRecognition = (event: any) => {
   isRecording.value && Voice.stop()
   isRecording.value = false
   try {
-    touchendY = event.changedTouches[0].clientY
-    if (touchstartY - touchendY > 100 && !prompt.value.includes('识别中...')) // 向上滑动
+    touch.EY = event.changedTouches[0].clientY
+    touch.EX = event.changedTouches[0].clientX
+
+    if (touch.EX - touch.SX > 135) // 向右滑动 划出侧边栏
+      appStore.setSiderCollapsed(false)
+    if (touch.SX - touch.EX > 135) // 向右滑动 划出侧边栏
+      appStore.setSiderCollapsed(true)
+    if (touch.SY - touch.EY > 135 && !prompt.value.includes('识别中...')) // 向上滑动
       handleSubmit()
-    // if (touchendY - touchstartY > 100) { // 向下滑动 清除输入框
+
+    // if (touch.EY - touch.SY > 100) { // 向下滑动 清除输入框
     //   prompt.value = ''
     //   Voice.previousContent = ''
     // }
