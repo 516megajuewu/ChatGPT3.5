@@ -1,7 +1,8 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/wav'
 
-const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
+// const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
+const SERVER = 'https://49.232.160.92:3002'
 
 class Voice {
   prompt: any
@@ -96,7 +97,6 @@ class Voice {
   }
 
   speak(text: string | undefined) {
-    // text && this.speakList.push(new Audio(`${import.meta.env.VITE_GLOB_API_URL}/voice?text=${encodeURI(text)}`))
     text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))
     // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
     if (this.isSpeak)
