@@ -63,7 +63,7 @@ class Voice {
           const base64 = reader.result || ''
           // 去掉base64头部
           this.prompt.value = `${this.prompt.value} 识别中...`
-          fetch(`${SERVER}/audio`, {
+          fetch('https://49.232.160.92:3002/audio', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
