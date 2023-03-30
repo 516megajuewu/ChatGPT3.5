@@ -1,8 +1,8 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/wav'
 
-// const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
-const SERVER = 'https://49.232.160.92:3002'
+const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
+// const SERVER = 'https://49.232.160.92:3002'
 
 class Voice {
   prompt: any
@@ -97,24 +97,30 @@ class Voice {
   }
 
   speak(text: string | undefined) {
-    text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))
-    // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
-    if (this.isSpeak)
-      return
-    const audio = this.speakList.shift()
-    if (!audio) {
-      this.isSpeak = false
-      return
+    try {
+      text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))
+      // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
+      if (this.isSpeak)
+        return
+      const audio = this.speakList.shift()
+      if (!audio) {
+        this.isSpeak = false
+        return
+      }
+      this.isSpeak = true
+      // 需要换成缓存
+      // const audio = new Audio(`https://aiapps.top/Voice?text=${encodeURI(words)}`)
+      // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
+      audio.onended = () => {
+        this.isSpeak = false
+        this.speak(undefined)
+      }
+      audio.play()
     }
-    this.isSpeak = true
-    // 需要换成缓存
-    // const audio = new Audio(`https://aiapps.top/Voice?text=${encodeURI(words)}`)
-    // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
-    audio.onended = () => {
+    catch (error) {
       this.isSpeak = false
       this.speak(undefined)
     }
-    audio.play()
   }
 }
 
