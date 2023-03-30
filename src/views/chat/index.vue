@@ -83,7 +83,7 @@ const speechHandle = (text: string) => {
 
     for (let i = speechArray.length; i < a.length; i++) {
       speechArray.push(a[i])
-      a[i].length >= 2 && Voice.speak(a[i])
+      a[i].trim().length >= 2 && Voice.speak(a[i])
     }
   }
   if (text === '。') {

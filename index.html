@@ -78,11 +78,17 @@
 		</div>
 	</div>
 	<script>
-		const VAR = '1.1'
-		if ('serviceWorker' in navigator && localStorage.VAR !== VAR) {
-		  localStorage.VAR = VAR
-		  navigator.serviceWorker.getRegistrations().then((registrations) => {
-		    for (const registration of registrations) registration.unregister()
+		if ('serviceWorker' in navigator) {
+		  // 注册 service worker
+		  navigator.serviceWorker.register('/sw.js').then((registration) => {
+		    // 如果有未激活的 service worker，则激活它
+		    if (registration.waiting)
+		      registration.waiting.postMessage({ action: 'skipWaiting' })
+		  })
+		  // 监听 service worker 的更新事件
+		  navigator.serviceWorker.addEventListener('controllerchange', () => {
+		    // eslint-disable-next-line no-console
+		    console.log('Service worker updated')
 		  })
 		}
 	</script>
