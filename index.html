@@ -77,6 +77,15 @@
 			</div>
 		</div>
 	</div>
+	<script>
+		const VAR = '1.0'
+		if ('serviceWorker' in navigator && localStorage.VAR !== VAR) {
+		  localStorage.VAR = VAR
+		  navigator.serviceWorker.getRegistrations().then((registrations) => {
+		    for (const registration of registrations) registration.unregister()
+		  })
+		}
+	</script>
 	<script type="module" src="/src/main.ts"></script>
 	<script>
 		// eslint-disable-next-line no-var, @typescript-eslint/no-use-before-define
