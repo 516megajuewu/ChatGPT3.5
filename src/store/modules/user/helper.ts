@@ -23,7 +23,7 @@ export function defaultSetting(): UserState {
       balance: 0,
       avatar: '',
       name: 'ME',
-      description: '余额: 0',
+      description: '余额: 无限制',
     },
   }
 }

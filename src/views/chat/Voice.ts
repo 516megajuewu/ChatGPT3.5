@@ -1,8 +1,8 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/wav'
 
-const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
-// const SERVER = 'https://49.232.160.92:3002'
+// const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
+const SERVER = 'https://49.232.160.92:3002'
 
 class Voice {
   prompt: any

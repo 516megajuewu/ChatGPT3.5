@@ -44,7 +44,9 @@ router.post('/chat-process', auth, async (req, res) => {
 router.post('/chat', auth, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const data = await openai(req.body, (t) => { res.write(t) })
+    const data = await openai(req.body, (t) => {
+      res.write(t)
+    })
     data.length < 3 && res.end('调用错误')
   }
   catch (error) {
@@ -143,7 +145,7 @@ app.use('/api', router)
 
 app.listen(3002, () => globalThis.console.log('Server is running on port 3002'))
 
-async function openai(options, process = () => { }) {
+async function openai(options, process = (d: any) => { }) {
   const req = await Request(options.url ?? 'https://api.openai.com/v1/chat/completions', {
     // agent: new ProxyAgent('http://127.0.0.1:7890'),
     method: options.method ?? 'POST',
@@ -173,6 +175,7 @@ async function openai(options, process = () => { }) {
 }
 
 async function balance(key) {
+  return '无限制'
   const req = await openai({ key, url: 'https://api.openai.com/dashboard/billing/credit_grants', method: 'GET' })
   try {
     const json = JSON.parse(req)

@@ -13,7 +13,7 @@ import HeaderComponent from './components/Header/index.vue'
 import Voice from './Voice'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAppStore, useChatStore, usePromptStore } from '@/store'
+import { useAppStore, useChatStore, usePromptStore, useUserStore } from '@/store'
 import { fetchChatProcess } from '@/api'
 import { t } from '@/locales'
 
@@ -27,6 +27,7 @@ const dialog = useDialog()
 const ms = useMessage()
 const appStore = useAppStore()
 const chatStore = useChatStore()
+const userStore = useUserStore()
 
 useCopyCode()
 
@@ -98,10 +99,31 @@ const speechHandle = (text: string) => {
   }
 }
 
-const startSpeechRecognition = (event: any) => {
+document.body.ontouchstart = (event: any) => {
   try {
     touch.SX = event.touches[0].clientX
     touch.SY = event.touches[0].clientY
+  }
+  catch (error) {}
+}
+
+document.body.ontouchend = (event: any) => {
+  try {
+    touch.EY = event.changedTouches[0].clientY
+    touch.EX = event.changedTouches[0].clientX
+
+    if (touch.EX - touch.SX > 135) // 向右滑动 划出侧边栏
+      appStore.setSiderCollapsed(false)
+    if (touch.SX - touch.EX > 135) // 向右滑动 划出侧边栏
+      appStore.setSiderCollapsed(true)
+    if (touch.SY - touch.EY > 135 && !prompt.value.includes('识别中...')) // 向上滑动
+      handleSubmit()
+  }
+  catch (error) {}
+}
+
+const startSpeechRecognition = (event: any) => {
+  try {
     if (event.target.tagName === 'IMG')
       event.preventDefault()
   }
@@ -123,27 +145,10 @@ const startSpeechRecognition = (event: any) => {
   return false
 }
 
-const stopSpeechRecognition = (event: any) => {
+const stopSpeechRecognition = () => {
   clearTimeout(speechTimeoutId)
   isRecording.value && Voice.stop()
   isRecording.value = false
-  try {
-    touch.EY = event.changedTouches[0].clientY
-    touch.EX = event.changedTouches[0].clientX
-
-    if (touch.EX - touch.SX > 135) // 向右滑动 划出侧边栏
-      appStore.setSiderCollapsed(false)
-    if (touch.SX - touch.EX > 135) // 向右滑动 划出侧边栏
-      appStore.setSiderCollapsed(true)
-    if (touch.SY - touch.EY > 135 && !prompt.value.includes('识别中...')) // 向上滑动
-      handleSubmit()
-
-    // if (touch.EY - touch.SY > 100) { // 向下滑动 清除输入框
-    //   prompt.value = ''
-    //   Voice.previousContent = ''
-    // }
-  }
-  catch (error) {}
 }
 
 function handleSubmit() {
@@ -235,6 +240,7 @@ async function onConversation() {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, 0)
       const options = { messages }
+      // const options = { messages, key: userStore.userInfo.key ?? '' }
       await fetchChatProcess({
         options,
         signal: controller.signal,
@@ -356,6 +362,7 @@ async function onRegenerate(index: number) {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, index)
       const options = { messages }
+      // const options = { messages, key: userStore.userInfo.key ?? '' }
       await fetchChatProcess({
         options,
         signal: controller.signal,

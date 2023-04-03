@@ -4,7 +4,7 @@ const LOCAL_NAME = 'chatStorage'
 
 export function defaultState(): Chat.ChatState {
   const uuid = 1002
-  return { active: uuid, history: [{ uuid, title: 'New Chat', isEdit: false, system: '', model: '', speak: false }], chat: [{ uuid, data: [] }] }
+  return { active: uuid, history: [{ uuid, title: 'New Chat', isEdit: false, system: '', model: '', speak: true }], chat: [{ uuid, data: [] }] }
 }
 
 export function getLocalState(): Chat.ChatState {
