@@ -239,8 +239,7 @@ async function onConversation() {
     const fetchChatAPIOnce = async () => {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, 0)
-      const options = { messages }
-      // const options = { messages, key: userStore.userInfo.key ?? '' }
+      const options = { messages, key: userStore.userInfo.key ?? '' }
       await fetchChatProcess({
         options,
         signal: controller.signal,
@@ -361,8 +360,7 @@ async function onRegenerate(index: number) {
     const fetchChatAPIOnce = async () => {
       // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
       const messages = buildMessage(message, index)
-      const options = { messages }
-      // const options = { messages, key: userStore.userInfo.key ?? '' }
+      const options = { messages, key: userStore.userInfo.key ?? '' }
       await fetchChatProcess({
         options,
         signal: controller.signal,
