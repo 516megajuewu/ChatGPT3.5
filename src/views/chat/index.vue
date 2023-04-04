@@ -127,6 +127,8 @@ document.body.ontouchend = (event: any) => {
 
 const startSpeechRecognition = (event: any) => {
   try {
+    // if (isMobile.value && event.target.tagName !== 'IMG')
+    //   return
     if (event.target.tagName === 'IMG')
       event.preventDefault()
   }

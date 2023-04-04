@@ -8,6 +8,7 @@ export interface UserInfo {
   avatar: string
   name: string
   description: string
+  balanceTime: number
   chats: object // 聊天列表{"标题": {"系统","指令",消息:[...]}}
 }
 

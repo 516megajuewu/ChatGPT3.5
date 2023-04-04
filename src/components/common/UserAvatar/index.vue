@@ -19,12 +19,17 @@ const login = async () => {
 
 const UpBalance = async () => {
   try {
+    // 记录查询时间 一个小时内不再查询
+    if (userInfo.value.balanceTime && userInfo.value.balanceTime > Date.now() - 3600000)
+      return
+
     userStore.updateUserInfo({ description: '查询中...' })
     const res = await fetchBalance()
     userStore.updateUserInfo({ description: `余额:${res}` })
+    userStore.updateUserInfo({ balanceTime: Date.now() })
   }
   catch (error) {
-    userStore.updateUserInfo({ description: '未知' })
+    userStore.updateUserInfo({ description: '查询错误' })
   }
 }
 // 初始完成 调用初始化余额
