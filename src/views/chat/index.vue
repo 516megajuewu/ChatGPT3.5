@@ -89,8 +89,11 @@ const speechHandle = (text: string) => {
       return
 
     for (let i = speechArray.length; i < a.length; i++) {
-      speechArray.push(a[i])
-      a[i].trim().length >= 2 && Voice.speak(a[i])
+      const trimmedSpeech = a[i].trim()
+      if (trimmedSpeech.length < 2)
+        continue
+      speechArray.push(trimmedSpeech)
+      Voice.speak(trimmedSpeech)
     }
   }
   if (text === '。') {
@@ -530,7 +533,7 @@ function handleStop() {
 // 搜索选项计算，这里使用value作为索引项，所以当出现重复value时渲染异常(多项同时出现选中效果)
 // 理想状态下其实应该是key作为索引项,但官方的renderOption会出现问题，所以就需要value反renderLabel实现
 const searchOptions = computed(() => {
-  if (prompt.value.startsWith('/')) {
+  if (prompt.value.startsWith('/') || prompt.value.startsWith(' ')) {
     return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(prompt.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
       return {
         label: obj.value,
@@ -626,7 +629,7 @@ onUnmounted(() => {
                 </HoverButton> -->
           <NPopconfirm placement="bottom" @positive-click="handleClear">
             <template #trigger>
-              <NButton @mousedown="(event) => event.button === 1 && handleClear()">
+              <NButton @mouseup="(event) => event.button === 1 && handleClear()">
                 <span class="text-xl text-[#4f555e] dark:text-white">
                   <SvgIcon icon="ri:delete-bin-line" />
                 </span>
