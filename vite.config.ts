@@ -16,9 +16,10 @@ export default defineConfig((env) => {
       vue(),
       VitePWA({
         injectRegister: 'auto',
+        registerType: 'autoUpdate',
         manifest: {
-          name: 'chatGPT',
-          short_name: 'chatGPT',
+          name: 'AI小助手',
+          short_name: 'AI小助手',
           icons: [
             { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
             { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
