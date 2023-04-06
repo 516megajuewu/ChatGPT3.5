@@ -60,22 +60,27 @@ class Voice {
         const reader = new FileReader()
         reader.readAsDataURL(blob)
         reader.onload = () => {
-          const base64 = reader.result || ''
+          const base64 = (reader.result?.toString() || '').replace(/^data:audio\/\w+;base64,/, '')
           // 去掉base64头部
           this.prompt.value = `${this.prompt.value} 识别中...`
-          fetch(`${SERVER}/audio`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              audio: base64.toString().replace(/^data:audio\/\w+;base64,/, ''),
-            }),
-          }).then(async (response) => {
-            const data = await response.json()
-            this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
+          // fetch(`${SERVER}/audio`, {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({
+          //     audio: base64.toString(),
+          //   }),
+          // }).then(async (response) => {
+          //   const data = await response.json()
+          //   this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
+          // })
+
+          voiceRecognition(base64.toString()).then((data) => {
+            this.prompt.value = `${this.prompt.value.replace(' 识别中...', data || '')}${data ? ',' : ''}`
           })
-          // fetchAudio({ audio: base64.toString().replace(/^data:audio\/\w+;base64,/, '') }).catch((data) => {
+
+          // fetchAudio({ audio: base64.toString() }).catch((data) => {
           //   // handle rejected promise
           //   // data.result ? (this.prompt.value = `${temp}${data.result},`) : (this.prompt.value = temp)
           //   this.prompt.value = `${this.prompt.value.replace(' 识别中...', data.result || '')}${data.result ? ',' : ''}`
@@ -122,6 +127,14 @@ class Voice {
       this.speak(undefined)
     }
   }
+}
+
+async function voiceRecognition(base64: string) {
+  return new Promise((resolve) => {
+    const ws = new WebSocket('ws://49.232.160.92:3003')
+    ws.onopen = () => ws.send(base64)
+    ws.onmessage = data => resolve(data.data.toString())
+  })
 }
 
 export default new Voice()
