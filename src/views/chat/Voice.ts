@@ -1,8 +1,8 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/wav'
 
-// const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
-const SERVER = 'https://49.232.160.92:3002'
+const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
+// const SERVER = 'https://49.232.160.92:3002'
 
 class Voice {
   prompt: any
@@ -63,7 +63,7 @@ class Voice {
           const base64 = reader.result || ''
           // 去掉base64头部
           this.prompt.value = `${this.prompt.value} 识别中...`
-          fetch('https://49.232.160.92:3002/audio', {
+          fetch(`${SERVER}/audio`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
