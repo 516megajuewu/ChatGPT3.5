@@ -122,6 +122,10 @@ class VoiceClass {
         this.isSpeak = false
         this.speak(undefined)
       }
+      audio.onerror = () => {
+        this.isSpeak = false
+        this.speak(undefined)
+      }
       audio.play()
     }
     catch (error) {
