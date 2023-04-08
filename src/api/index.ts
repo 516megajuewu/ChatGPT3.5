@@ -37,12 +37,13 @@ export function fetchChatAPIProcess<T = any>(
 
 export function fetchChatProcess<T = any>(
   params: {
+    url?: string
     options: {}
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
 ) {
   return post<T>({
-    url: '/chat',
+    url: params.url || '/chat',
     data: params.options,
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,

@@ -192,6 +192,65 @@ function buildMessage(message: String, index: number) {
   return messages
 }
 
+async function AutoChat(message: any, index: number) {
+  const publicAPI = 'binjie'
+  let api = ''
+  let options = {}
+  switch (publicAPI) {
+    case 'binjie':
+      api = 'https://xuanxuan.club:3002/chat'
+      // api = 'https://127.0.0.1:3002/chat'
+      options = {
+        publicAPI: 'binjie',
+        prompt: message,
+        chatId: +uuid,
+        network: false,
+        withoutContext: !usingContext.value,
+        system: (chatStore.getHistory(+uuid) || { system: '' }).system,
+      }
+      break
+    default:
+      options = { messages: buildMessage(message, index), key: userStore.userInfo.key ?? '' }
+      break
+  }
+
+  const speak = chatStore.getHistory(+uuid)?.speak
+  const fetchChatAPIOnce = async () => {
+    // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+    await fetchChatProcess({
+      url: api,
+      options,
+      signal: controller.signal,
+      onDownloadProgress: ({ event }) => {
+        const xhr = event.target
+        const { responseText } = xhr
+        try {
+          updateChat(
+            +uuid,
+            index === 0 ? dataSources.value.length - 1 : index,
+            {
+              dateTime: index === 0 ? new Date().toLocaleString() : dataSources.value[index].dateTime,
+              text: responseText ?? '',
+              inversion: false,
+              error: false,
+              loading: false,
+              conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
+              requestOptions: { prompt: message },
+            },
+          )
+          speak && speechHandle(responseText)
+          scrollToBottom()
+        }
+        catch (error) {
+          // console.log(error)
+        }
+      },
+    })
+  }
+  await fetchChatAPIOnce()
+  speak && speechHandle('。')
+}
+
 async function onConversation() {
   const message = prompt.value
 
@@ -241,44 +300,7 @@ async function onConversation() {
 
   // console.log(options, dataSources)
   try {
-    // const lastText = ''
-    // const system = (chatStore.getHistory(+uuid) || { system: '' }).system
-    const speak = chatStore.getHistory(+uuid)?.speak
-    const fetchChatAPIOnce = async () => {
-      // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
-      const messages = buildMessage(message, 0)
-      const options = { messages, key: userStore.userInfo.key ?? '' }
-      await fetchChatProcess({
-        options,
-        signal: controller.signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText } = xhr
-          try {
-            updateChat(
-              +uuid,
-              dataSources.value.length - 1,
-              {
-                dateTime: new Date().toLocaleString(),
-                text: responseText ?? '',
-                inversion: false,
-                error: false,
-                loading: false,
-                conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
-                requestOptions: { prompt: message },
-              },
-            )
-            speak && speechHandle(responseText)
-            scrollToBottom()
-          }
-          catch (error) {
-            // console.log(error)
-          }
-        },
-      })
-    }
-    await fetchChatAPIOnce()
-    speak && speechHandle('。')
+    await AutoChat(message, 0)
   }
   catch (error: any) {
     const errorMessage = error?.message ?? t('common.wrong')
@@ -364,42 +386,7 @@ async function onRegenerate(index: number) {
   )
 
   try {
-    const speak = chatStore.getHistory(+uuid)?.speak
-    const fetchChatAPIOnce = async () => {
-      // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
-      const messages = buildMessage(message, index)
-      const options = { messages, key: userStore.userInfo.key ?? '' }
-      await fetchChatProcess({
-        options,
-        signal: controller.signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText = '调用失败' } = xhr
-          try {
-            updateChat(
-              +uuid,
-              index,
-              {
-                dateTime,
-                text: responseText ?? '',
-                inversion: false,
-                error: false,
-                loading: false,
-                conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
-                requestOptions: { prompt: message },
-              },
-            )
-            speak && speechHandle(responseText)
-            scrollToBottom()
-          }
-          catch (error) {
-            // console.log(error)
-          }
-        },
-      })
-    }
-    await fetchChatAPIOnce()
-    speak && speechHandle('。')
+    await AutoChat(message, index)
   }
   catch (error: any) {
     if (error.message === 'canceled') {

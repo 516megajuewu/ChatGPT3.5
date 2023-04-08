@@ -10,6 +10,7 @@ export interface UserInfo {
   description: string
   balanceTime: number
   chats: object // 聊天列表{"标题": {"系统","指令",消息:[...]}}
+  announcer: string // 语音发音人
 }
 
 export interface UserState {
@@ -24,6 +25,7 @@ export function defaultSetting(): UserState {
       balance: 0,
       avatar: '',
       name: 'ME',
+      announcer: 'zh-CN-XiaoyiNeural',
       balanceTime: 0,
       description: '余额: 无限制',
     },

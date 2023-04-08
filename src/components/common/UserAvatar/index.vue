@@ -4,7 +4,6 @@ import { NAvatar, NButton, useMessage } from 'naive-ui'
 import { useUserStore } from '@/store'
 import defaultAvatar from '@/assets/avatar.jpg'
 import { isString } from '@/utils/is'
-import { fetchBalance } from '@/api'
 
 const userStore = useUserStore()
 const message = useMessage()
@@ -19,14 +18,15 @@ const login = async () => {
 
 const UpBalance = async () => {
   try {
+    userStore.updateUserInfo({ description: '无限制' })
     // 记录查询时间 一个小时内不再查询
     if (userInfo.value.balanceTime && userInfo.value.balanceTime > Date.now() - 3600000)
       return
 
-    userStore.updateUserInfo({ description: '查询中...' })
-    const res = await fetchBalance()
-    userStore.updateUserInfo({ description: `余额:${res}` })
-    userStore.updateUserInfo({ balanceTime: Date.now() })
+    // userStore.updateUserInfo({ description: '查询中...' })
+    // const res = await fetchBalance()
+    // userStore.updateUserInfo({ description: `余额:${res}` })
+    // userStore.updateUserInfo({ balanceTime: Date.now() })
   }
   catch (error) {
     userStore.updateUserInfo({ description: '查询错误' })

@@ -1,7 +1,9 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/mp3'
 import 'recorder-core/src/engine/mp3-engine'
+import { useUserStore } from '@/store'
 
+const userStore = useUserStore()
 // const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
 const SERVER = 'https://xuanxuan.club:3002'
 
@@ -104,7 +106,7 @@ class Voice {
 
   speak(text: string | undefined) {
     try {
-      text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))
+      text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))// ${userStore.userInfo.announcer ? `&voice=${userStore.userInfo.announcer}` : ''}`
       // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
       if (this.isSpeak)
         return
@@ -130,7 +132,7 @@ class Voice {
   }
 }
 
-function AutoVoiceRecognition(result = (text: string) => {}, api = 'https://xuanxuan.club:3002/audio') {
+function AutoVoiceRecognition(result = (text: string) => {}, api = SERVER) {
   const recorder = new Recorder({ debug: false })
   recorder.open()
   navigator.mediaDevices.getUserMedia({ audio: true })
