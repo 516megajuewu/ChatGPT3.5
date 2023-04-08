@@ -1,9 +1,9 @@
 import Recorder from 'recorder-core'
 import 'recorder-core/src/engine/mp3'
 import 'recorder-core/src/engine/mp3-engine'
-import { useUserStore } from '@/store'
+// import { useUserStore } from '@/store'
 
-const userStore = useUserStore()
+// const userStore = useUserStore()
 // const SERVER = import.meta.env.VITE_GLOB_API_URL || 'https://chatserver.516megajuewu.repl.co'
 const SERVER = 'https://xuanxuan.club:3002'
 
@@ -132,54 +132,54 @@ class Voice {
   }
 }
 
-function AutoVoiceRecognition(result = (text: string) => {}, api = SERVER) {
-  const recorder = new Recorder({ debug: false })
-  recorder.open()
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then((stream) => {
-      const audioContext = new AudioContext()
-      const sourceNode = audioContext.createMediaStreamSource(stream)
-      const analyserNode = audioContext.createAnalyser()
-      analyserNode.fftSize = 2048
-      sourceNode.connect(analyserNode)
-      const dataArray = new Uint8Array(analyserNode.frequencyBinCount)
-      let isRecording = 0
-      // 定时更新音量值
-      setInterval(() => {
-      // 获取分析结果
-        analyserNode.getByteFrequencyData(dataArray)
-        // 计算音量值
-        const volume = dataArray.reduce((acc, cur) => acc + cur) / dataArray.length
-        if (volume > 25) {
-          isRecording === 0 && recorder.start()
-          isRecording = 1 // 但有个问题 如果有杂音 会一直录下去
-        }
-        if (volume < 25 && isRecording > 0 && isRecording++ > 50) {
-          isRecording = 0
-          recorder.stop((blob: any) => {
-            const reader = new FileReader()
-            reader.readAsDataURL(blob)
-            reader.onload = () => {
-              const base64 = (reader.result?.toString() || '').replace(/^data:audio\/\w+;base64,/, '')
-              // 去掉base64头部
-              fetch(api, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  audio: base64.toString(),
-                }),
-              }).then(async (response) => {
-                const data = await response.json()
-                data.result && result(data.result)
-              })
-            }
-          })
-        }
-      }, 10)
-    })
-}
+// function AutoVoiceRecognition(result = (text: string) => {}, api = SERVER) {
+//   const recorder = new Recorder({ debug: false })
+//   recorder.open()
+//   navigator.mediaDevices.getUserMedia({ audio: true })
+//     .then((stream) => {
+//       const audioContext = new AudioContext()
+//       const sourceNode = audioContext.createMediaStreamSource(stream)
+//       const analyserNode = audioContext.createAnalyser()
+//       analyserNode.fftSize = 2048
+//       sourceNode.connect(analyserNode)
+//       const dataArray = new Uint8Array(analyserNode.frequencyBinCount)
+//       let isRecording = 0
+//       // 定时更新音量值
+//       setInterval(() => {
+//       // 获取分析结果
+//         analyserNode.getByteFrequencyData(dataArray)
+//         // 计算音量值
+//         const volume = dataArray.reduce((acc, cur) => acc + cur) / dataArray.length
+//         if (volume > 25) {
+//           isRecording === 0 && recorder.start()
+//           isRecording = 1 // 但有个问题 如果有杂音 会一直录下去
+//         }
+//         if (volume < 25 && isRecording > 0 && isRecording++ > 50) {
+//           isRecording = 0
+//           recorder.stop((blob: any) => {
+//             const reader = new FileReader()
+//             reader.readAsDataURL(blob)
+//             reader.onload = () => {
+//               const base64 = (reader.result?.toString() || '').replace(/^data:audio\/\w+;base64,/, '')
+//               // 去掉base64头部
+//               fetch(api, {
+//                 method: 'POST',
+//                 headers: {
+//                   'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify({
+//                   audio: base64.toString(),
+//                 }),
+//               }).then(async (response) => {
+//                 const data = await response.json()
+//                 data.result && result(data.result)
+//               })
+//             }
+//           })
+//         }
+//       }, 10)
+//     })
+// }
 
 // AutoVoiceRecognition(console.log)
 // async function voiceRecognition(base64: string) {
