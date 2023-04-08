@@ -142,6 +142,10 @@ class AutoVoiceRecognitionClass {
   isInit = false
   onRecorder = ref<boolean>(false)
   onVoice = (txt: any) => {}
+  get isMobile() {
+    return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)
+  }
+
   constructor() {
 
   }
@@ -166,12 +170,13 @@ class AutoVoiceRecognitionClass {
           analyserNode.getByteFrequencyData(dataArray)
           // 计算音量值
           const volume = dataArray.reduce((acc, cur) => acc + cur) / dataArray.length
-          if (volume > 25) {
+          const volumeValue = this.isMobile ? 20 : 25
+          if (volume > volumeValue) {
             this.isRecording === 0 && this.recorder.start()
             this.isRecording = 1 // 但有个问题 如果有杂音 会一直录下去
             this.onRecorder.value = true
           }
-          if (volume < 25 && this.isRecording > 0 && this.isRecording++ > 50) {
+          if (volume < volumeValue && this.isRecording > 0 && this.isRecording++ > 50) {
             this.isRecording = 0
             this.onRecorder.value = false
             this.recorder.stop((blob: any) => {
