@@ -147,7 +147,7 @@ const deletePromptTemplate = (row: { key: string; value: string }) => {
 
 const usePromptTemplate = (row: { key: string; value: string }) => {
   // new chat
-  chatStore.addHistory({ title: row.key, uuid: Date.now(), isEdit: false, system: row.value, speak: true })
+  chatStore.addHistory({ title: row.key, uuid: Date.now(), isEdit: false, system: row.value })
   message.success('添加成功')
   show.value = false
 }

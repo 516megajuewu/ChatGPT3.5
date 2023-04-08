@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
-import { NInput, NPopconfirm, NScrollbar } from 'naive-ui'
+import { NCheckbox, NInput, NPopconfirm, NScrollbar, NTag } from 'naive-ui'
 import { SvgIcon } from '@/components/common'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -105,26 +105,34 @@ function isActive(uuid: number) {
                 </button>
               </template>
               <template v-else>
-                <button class="p-1" :class="{ 'text-[#4b9e5f]': item.speak, 'text-[#353535]': !item.speak }" @click="item.speak = !item.speak">
-                  <SvgIcon icon="icon-park-twotone:people-speak" />
-                </button>
-                <!-- <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
+                <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
                   <template #trigger>
                     <button class="p-1">
-                      <SvgIcon icon="ph:gear" />
+                      <SvgIcon icon="ion:options-outline" />
                     </button>
                   </template>
-                  <span class="text" style="width: 230px;">
-                    <p>
-                      语音:&nbsp;&nbsp;&nbsp;
-                      <NSwitch v-model:value="item.speak" />
-                    </p>
-                    <span>
-                      模型:&nbsp;&nbsp;&nbsp;
-                      <NSelect v-model:value="item.model" :options="[{ label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo' }]" default-value="gpt-3.5-turbo" />
-                    </span>
-                  </span>
-                </NPopconfirm> -->
+                  <span class="text">
+                    <NTag size="large">
+                      <NCheckbox v-model:checked="item.network">开启联网</NCheckbox>
+                    </NTag>
+
+                    <br>
+                    ------------------------
+                    <br>
+                    <NTag type="warning" closable size="large">
+                      模型选择:[未完成]
+                    </NTag>
+                    <br>
+                    <NTag type="warning" closable size="large">
+                      模型参数:[未完成]
+                    </NTag>
+                    <br>
+                    <NTag type="warning" closable size="large">
+                      接口地址:[未完成]
+                    </NTag>
+                    <br>
+
+                  </span></NPopconfirm>
                 <NPopconfirm placement="bottom" @positive-click="handleDelete(index, $event)">
                   <template #trigger>
                     <button class="p-1">

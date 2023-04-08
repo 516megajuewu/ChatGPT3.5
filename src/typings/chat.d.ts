@@ -15,7 +15,8 @@ declare namespace Chat {
 		isEdit: boolean
 		system: string
 		uuid: number
-		speak?: boolean, //朗读
+
+		network?:boolean,//联网
 		engine?:string, //引擎
 		model?: string, //模型
 		temperature?: number

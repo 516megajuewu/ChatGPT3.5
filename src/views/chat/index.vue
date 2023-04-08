@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, NPopconfirm, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, NPopconfirm, NTag, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -10,7 +10,7 @@ import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
-import Voice from './Voice'
+import { AutoVoiceRecognition, Voice } from './Voice'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useChatStore, usePromptStore, useUserStore } from '@/store'
@@ -34,7 +34,7 @@ useCopyCode()
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom } = useScroll()
-const { usingContext, toggleUsingContext } = useUsingContext()
+const { usingContext, toggleUsingContext, useVoiceChat, VoiceControl, isSpeak, useSpeak } = useUsingContext()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -55,51 +55,33 @@ Voice.prompt = prompt
 let speechTimeoutId: any
 
 let speechArray: Array<string> = []
-let speechText = ''
+let speechText: string
 const touch = {
   SX: 0,
   SY: 0,
   EX: 0,
   EY: 0,
 }
-const speechHandle = (text: string) => {
-  if (!text) {
-    speechText = ''
-    return
-  }
-  const pd = text === '。' ? text : text.slice(speechText.length)
-  speechText += pd
+
+function speechHandle(text?: any) {
+  speechText = text === undefined ? speechText : text
   // 过滤掉文本 ```    ``` 之间的内容
-  let newStr = speechText
   const len = speechText.split('```').length - 1
-  if (len % 2 === 0) {
-    const regex = /```[\s\S]*?```/g
-    // 过滤掉代码段
-    newStr = speechText.replace(regex, '')
-  }
   if (len % 2 === 1)
     return
-  // 拼接字符串 判断是否有非中文英文数字 如果有则记录位置 并且截取字符串
-  // const reg = /[\u4E00-\u9FA5a-zA-Z0-9 \+\*\/\|,~、，.'"\(\)\{\}\[\]]+/g // 方法一
-  const reg = /[。！？；\n]/g
-  if (reg.test(pd)) { // 方法一 加感叹号
-    // const a = newStr.match(reg) // 方法一
-    const a = newStr.split(reg).filter(item => item)
-    if (!a)
-      return
+  if (len % 2 === 0)
+    speechText = speechText.replace(/```[\s\S]*?```/g, '')
 
-    for (let i = speechArray.length; i < a.length; i++) {
-      const trimmedSpeech = a[i].trim()
-      if (trimmedSpeech.length < 2)
-        continue
-      speechArray.push(trimmedSpeech)
-      Voice.speak(trimmedSpeech)
-    }
+  const end = typeof text === 'undefined'
+  const a = speechText.split(/[。！？；\n]/g).filter((item: any) => item)
+  for (let i = speechArray.length; i < a.length - (end ? 0 : 1); i++) {
+    const tmp = a[i].trim()
+    if (tmp.length < 2)
+      continue
+    speechArray.push(tmp)
+    isSpeak.value && Voice.speak(tmp)
   }
-  if (text === '。') {
-    speechText = ''
-    speechArray = []
-  }
+  end && (speechArray = [])
 }
 
 document.body.ontouchstart = (event: any) => {
@@ -125,6 +107,32 @@ document.body.ontouchend = (event: any) => {
   catch (error) {}
 }
 
+AutoVoiceRecognition.start((text: any) => {
+  switch (text) {
+    case '发送':
+      handleSubmit()
+      break
+    case '重新输入':
+      prompt.value = ''
+      break
+    case '清空聊天记录':
+      handleClear()
+      break
+    default:
+      prompt.value += `${text}`
+      break
+  }
+})
+
+function handleVoiceChat() {
+  useVoiceChat()
+  AutoVoiceRecognition.isRunning = VoiceControl.value
+}
+
+function handleisRecording() {
+  return (VoiceControl.value ? AutoVoiceRecognition.onRecorder.value : isRecording.value)
+}
+
 const startSpeechRecognition = (event: any) => {
   let startTime = 135
   try {
@@ -145,6 +153,9 @@ const startSpeechRecognition = (event: any) => {
     handleSubmit()
   }
 
+  if (VoiceControl.value)
+    return
+
   clearTimeout(speechTimeoutId)
   speechTimeoutId = setTimeout(() => {
     isRecording.value = true
@@ -154,6 +165,8 @@ const startSpeechRecognition = (event: any) => {
 }
 
 const stopSpeechRecognition = () => {
+  if (VoiceControl.value)
+    return
   clearTimeout(speechTimeoutId)
   isRecording.value && Voice.stop()
   isRecording.value = false
@@ -196,6 +209,7 @@ async function AutoChat(message: any, index: number) {
   const publicAPI = 'binjie'
   let api = ''
   let options = {}
+  const item = chatStore.getHistory(+uuid)
   switch (publicAPI) {
     case 'binjie':
       api = 'https://xuanxuan.club:3002/chat'
@@ -204,9 +218,9 @@ async function AutoChat(message: any, index: number) {
         publicAPI: 'binjie',
         prompt: message,
         chatId: +uuid,
-        network: false,
+        network: !!item?.network,
         withoutContext: !usingContext.value,
-        system: (chatStore.getHistory(+uuid) || { system: '' }).system,
+        system: (item || { system: '' }).system,
       }
       break
     default:
@@ -214,9 +228,9 @@ async function AutoChat(message: any, index: number) {
       break
   }
 
-  const speak = chatStore.getHistory(+uuid)?.speak
   const fetchChatAPIOnce = async () => {
     // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
+    // Voice.speakList = []
     await fetchChatProcess({
       url: api,
       options,
@@ -238,7 +252,7 @@ async function AutoChat(message: any, index: number) {
               requestOptions: { prompt: message },
             },
           )
-          speak && speechHandle(responseText)
+          isSpeak.value && speechHandle(responseText)
           scrollToBottom()
         }
         catch (error) {
@@ -248,7 +262,7 @@ async function AutoChat(message: any, index: number) {
     })
   }
   await fetchChatAPIOnce()
-  speak && speechHandle('。')
+  isSpeak.value && speechHandle()
 }
 
 async function onConversation() {
@@ -619,31 +633,71 @@ onUnmounted(() => {
                     <SvgIcon icon="ri:delete-bin-line" />
                   </span>
                 </HoverButton> -->
-          <NPopconfirm placement="bottom" @positive-click="handleClear">
+
+          <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
             <template #trigger>
-              <NButton @mouseup="(event) => event.button === 1 && handleClear()">
-                <span class="text-xl text-[#4f555e] dark:text-white">
-                  <SvgIcon icon="ri:delete-bin-line" />
+              <NButton>
+                <span class="text-xl">
+                  <SvgIcon icon="ri:function-line" />
                 </span>
               </NButton>
             </template>
-            {{ $t('chat.clearHistoryConfirm') }}
+            <span class="text">
+              <NPopconfirm placement="bottom" @positive-click="handleClear">
+                <template #trigger>
+                  <NButton @mouseup="(event) => event.button === 1 && handleClear()">
+                    <span class="text-xl text-[#4f555e] dark:text-white">
+                      <SvgIcon icon="ri:delete-bin-line" />
+                    </span>
+                  </NButton>
+                </template>
+                {{ $t('chat.clearHistoryConfirm') }}
+              </NPopconfirm>
+              <NButton @click="handleExport">
+                <span class="text-xl text-[#4f555e] dark:text-white">
+                  <SvgIcon icon="ri:download-2-line" />
+                </span>
+              </NButton>
+              <NButton @click="toggleUsingContext">
+                <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+                  <SvgIcon icon="ri:chat-history-line" />
+                </span>
+              </NButton>
+              <NButton @click="handleVoiceChat">
+                <span class="text-xl" :class="{ 'text-[#4b9e5f]': VoiceControl, 'text-[#a8071a]': !VoiceControl }">
+                  <SvgIcon icon="material-symbols:voice-chat-outline" />
+                </span>
+              </NButton>
+              <NButton @click="useSpeak">
+                <span class="text-xl" :class="{ 'text-[#4b9e5f]': isSpeak, 'text-[#a8071a]': !isSpeak }">
+                  <SvgIcon icon="icon-park-twotone:people-speak" />
+                </span>
+              </NButton>
+
+              <NPopconfirm placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
+                <template #trigger>
+                  <NButton>
+                    <span class="text-xl">
+                      <SvgIcon icon="mdi:comment-help-outline" />
+                    </span>
+                  </NButton>
+                </template>
+                <span class="text">
+                  <NTag type="success" size="large">
+                    作者: 江湖扯谈
+                  </NTag>
+                  <br>
+                  <NTag type="success" size="large">
+                    版本: 2023.4.8 17:00
+                  </NTag>
+                  <br>
+                </span>
+
+              </NPopconfirm>
+
+            </span>
           </NPopconfirm>
-          <!-- <HoverButton v-if="!isMobile" @click="handleExport">
-                  <span class="text-xl text-[#4f555e] dark:text-white">
-                    <SvgIcon icon="ri:download-2-line" />
-                  </span>
-                </HoverButton> -->
-          <!-- <NButton v-if="!isMobile" @click="toggleUsingContext">
-            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-              <SvgIcon icon="ri:chat-SpeechIcon-line" />
-            </span>
-          </NButton> -->
-          <NButton v-if="!isMobile" @click="toggleUsingContext">
-            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-              <SvgIcon icon="ri:chat-history-line" />
-            </span>
-          </NButton>
+
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleBlur, handleFocus }">
               <NInput
@@ -652,7 +706,7 @@ onUnmounted(() => {
                 @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
               >
                 <template #suffix>
-                  <span class="text-xl" :class="{ 'text-[#4b9e5f]': isRecording, 'text-[#aaaaaa]': !isRecording }">
+                  <span class="text-xl" :class=" handleisRecording() ? 'text-[#4b9e5f]' : 'text-[#aaaaaa]' ">
                     <SvgIcon icon="ic:outline-keyboard-voice" width="25" height="25" />
                   </span>
                 </template>
