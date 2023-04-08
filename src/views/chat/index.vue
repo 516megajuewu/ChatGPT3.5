@@ -687,10 +687,21 @@ onUnmounted(() => {
                     作者: 江湖扯谈
                   </NTag>
                   <br>
-                  <NTag type="success" size="large">
-                    版本: 2023.4.8 17:00
-                  </NTag>
                   <br>
+                  说明:
+                  <br>
+                  手势: 上滑发送  右/左滑侧边栏
+                  <br>
+                  语音: 语音控制  发送/重新输入
+                  <br>
+                  按住: 语音输入  松开识别/非实时
+                  <br>
+                  设定: 点击聊天图标可以设定角色
+                  <br>
+                  <br>
+                  <NTag type="success" size="large">
+                    版本: 2023.4.8
+                  </NTag>
                 </span>
 
               </NPopconfirm>
