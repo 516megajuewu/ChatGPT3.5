@@ -704,7 +704,7 @@ onUnmounted(() => {
                   <br>
                   <br>
                   <NTag type="success" size="large">
-                    版本: 2023.4.9 10.00
+                    版本: 2023.4.9 21.32
                   </NTag>
                 </span>
 
