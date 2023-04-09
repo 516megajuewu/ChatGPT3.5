@@ -1,3 +1,3 @@
 import setupAssets from './assets'
-
-export { setupAssets }
+import setupScrollbarStyle from './scrollbarStyle'
+export { setupAssets, setupScrollbarStyle }
