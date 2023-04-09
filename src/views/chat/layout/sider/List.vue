@@ -52,13 +52,14 @@ const ModelData = [
   { label: '4.0 32K', value: 'zh-CN-XiaochenNeural', disabled: true },
   { label: '微软必应', value: 'zh-CN-XiaohanNeural', disabled: true },
   { label: '文心一言', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
+  { label: '聚合绘图', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
 ]
 
 const VoiceData = [
   { label: '晓伊(女-儿童)', value: 'zh-CN-XiaoyiNeural' },
-  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural' },
-  { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural' },
-  { label: '有道(女-稳定)', value: 'zh-CN-YunxiNeural' },
+  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural', disabled: true },
+  { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural', disabled: true },
+  { label: '有道(女-稳定)', value: 'zh-CN-YunxiNeural', disabled: true },
   // { label: '晓晓(女-年轻)', value: 'zh-CN-XiaoxiaoNeural' },
   // { label: '云扬(男-年轻)', value: 'zh-CN-YunyangNeural' },
   // { label: '晓涵(女-年轻)', value: 'zh-CN-XiaohanNeural' },
@@ -139,7 +140,7 @@ const VoiceData = [
                   </template>
                   <span class="text">
                     <NTag size="large">
-                      <NCheckbox v-model:checked="item.network">开启联网</NCheckbox>
+                      <NCheckbox v-model:checked="item.network">启用互联网搜索</NCheckbox>
                     </NTag>
                     <br>
                     ------------------------
@@ -148,13 +149,20 @@ const VoiceData = [
                       模型:
                     </NTag>
                     <NSelect :options="ModelData" :default-value="ModelData[0].label" />
-                    <!-- <NTag type="success" size="medium">
-                      参数:
-                    </NTag> -->
                     <!-- <br>
-                    惩罚:
+                    <NTag type="success" size="medium">
+                      参数:
+                    </NTag>
                     <br>
-                    <NSlider :step="10" /> -->
+                    <br>
+                    <NSlider :step="10" :max="100" />
+                    <br>
+                    <NSlider :step="10" :max="100" />
+                    <br>
+                    <NSlider :step="0.1" :max="1" />
+                    <br> -->
+                    ------------------------
+                    <br>
                     <NTag type="success" size="medium">
                       语音:
                     </NTag>
