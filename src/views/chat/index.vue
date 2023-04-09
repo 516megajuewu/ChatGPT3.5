@@ -147,7 +147,7 @@ const startSpeechRecognition = (event: any) => {
 
   // 鼠标中键 提交 || 清空
   if (event.button === 1) {
-    if (event.target.tagName === '')
+    if (event.target.tagName === 'TEXTAREA')
       return prompt.value = ''
     handleSubmit()
   }
