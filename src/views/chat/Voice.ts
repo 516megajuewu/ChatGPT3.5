@@ -105,29 +105,28 @@ class VoiceClass {
   }
 
   speak(text: string | undefined) {
-    try {
-      text && this.speakList.push(new Audio(`${SERVER}/voice?text=${encodeURI(text)}`))// ${userStore.userInfo.announcer ? `&voice=${userStore.userInfo.announcer}` : ''}`
-      // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
-      if (this.isSpeak)
-        return
-      const audio = this.speakList.shift()
-      if (!audio) {
-        this.isSpeak = false
-        return
-      }
-      this.isSpeak = true
-      // 需要换成缓存
-      // const audio = new Audio(`https://aiapps.top/Voice?text=${encodeURI(words)}`)
-      // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(words)}&le=zh`)
+    // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
+    if (text) {
+      // https://fanyi.sogou.com/reventondc/synthesis?text=哈哈
+      // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`)
+      const audio = new Audio(`${SERVER}/voice?text=${encodeURI(text)}`)
       audio.onended = () => {
         this.isSpeak = false
         this.speak(undefined)
       }
-      audio.onerror = () => {
-        this.isSpeak = false
-        this.speak(undefined)
-      }
-      audio.play()
+      this.speakList.push(audio)
+    }
+
+    if (this.isSpeak)
+      return
+    const nextAudio = this.speakList.shift()
+    if (!nextAudio) {
+      this.isSpeak = false
+      return
+    }
+    this.isSpeak = true
+    try {
+      nextAudio.play()
     }
     catch (error) {
       this.isSpeak = false

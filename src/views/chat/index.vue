@@ -239,7 +239,7 @@ async function AutoChat(message: any, index: number) {
 
   const fetchChatAPIOnce = async () => {
     // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
-    // Voice.speakList = []
+    Voice.speakList = []
     await fetchChatProcess({
       url: api,
       options,
