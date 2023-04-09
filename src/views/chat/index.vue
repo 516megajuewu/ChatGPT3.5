@@ -602,7 +602,7 @@ onUnmounted(() => {
       v-if="isMobile" :using-context="usingContext" @export="handleExport"
       @toggle-using-context="toggleUsingContext"
     />
-    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition" @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition" @contextmenu="(e) => e.preventDefault()">
+    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition" @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper" class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
