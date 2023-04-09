@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
-import { NCheckbox, NInput, NPopconfirm, NScrollbar, NTag } from 'naive-ui'
+import { NCheckbox, NInput, NPopconfirm, NScrollbar, NSelect, NTag } from 'naive-ui'
 import { SvgIcon } from '@/components/common'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -45,6 +45,32 @@ function handleEnter({ uuid }: Chat.History, isEdit: boolean, event: KeyboardEve
 function isActive(uuid: number) {
   return chatStore.active === uuid
 }
+
+const ModelData = [
+  { label: '3.5 官方', value: '3.5 官方' },
+  { label: '4.0 16K', value: 'zh-CN-没有开放', disabled: true },
+  { label: '4.0 32K', value: 'zh-CN-XiaochenNeural', disabled: true },
+  { label: '微软必应', value: 'zh-CN-XiaohanNeural', disabled: true },
+  { label: '文心一言', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
+]
+
+const VoiceData = [
+  { label: '晓伊(女-儿童)', value: 'zh-CN-XiaoyiNeural' },
+  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural' },
+  { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural' },
+  { label: '有道(女-稳定)', value: 'zh-CN-YunxiNeural' },
+  // { label: '晓晓(女-年轻)', value: 'zh-CN-XiaoxiaoNeural' },
+  // { label: '云扬(男-年轻)', value: 'zh-CN-YunyangNeural' },
+  // { label: '晓涵(女-年轻)', value: 'zh-CN-XiaohanNeural' },
+  // { label: '晓墨(女-年轻)', value: 'zh-CN-XiaomoNeural' },
+  // { label: '晓睿(女-老年)', value: 'zh-CN-XiaoruiNeural' },
+  // { label: '晓双(女-儿童)', value: 'zh-CN-XiaoshuangNeural' },
+  // { label: '晓萱(女-年轻)', value: 'zh-CN-XiaoxuanNeural' },
+  // { label: '晓颜(女-年轻)', value: 'zh-CN-XiaoyanNeural' },
+  // { label: '晓悠(女-儿童)', value: 'zh-CN-XiaoyouNeural' },
+  // { label: '云野(男-中年)', value: 'zh-CN-YunyeNeural' },
+  // { label: '晓梦(女-年轻)', value: 'zh-CN-XiaomengNeural' },
+]
 </script>
 
 <template>
@@ -115,22 +141,24 @@ function isActive(uuid: number) {
                     <NTag size="large">
                       <NCheckbox v-model:checked="item.network">开启联网</NCheckbox>
                     </NTag>
-
                     <br>
                     ------------------------
                     <br>
-                    <NTag type="warning" closable size="large">
-                      模型选择:[未完成]
+                    <NTag type="success" size="medium">
+                      模型:
                     </NTag>
+                    <NSelect :options="ModelData" :default-value="ModelData[0].label" />
+                    <!-- <NTag type="success" size="medium">
+                      参数:
+                    </NTag> -->
+                    <!-- <br>
+                    惩罚:
                     <br>
-                    <NTag type="warning" closable size="large">
-                      模型参数:[未完成]
+                    <NSlider :step="10" /> -->
+                    <NTag type="success" size="medium">
+                      语音:
                     </NTag>
-                    <br>
-                    <NTag type="warning" closable size="large">
-                      接口地址:[未完成]
-                    </NTag>
-                    <br>
+                    <NSelect :options="VoiceData" :default-value="VoiceData[0].label" />
 
                   </span></NPopconfirm>
                 <NPopconfirm placement="bottom" @positive-click="handleDelete(index, $event)">
