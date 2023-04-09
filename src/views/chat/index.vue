@@ -145,14 +145,17 @@ const startSpeechRecognition = (event: any) => {
   }
   catch (error) {}
 
-  // 鼠标中键 提交
+  // 鼠标中键 提交 || 清空
   if (event.button === 1) {
-    // console.log(chatStore.getHistory(+uuid))
+    if (event.target.tagName === '')
+      return prompt.value = ''
     handleSubmit()
   }
 
   if (VoiceControl.value || isRecording.value)
     return
+
+  // Voice.prompt = (/INPUT|TEXTAREA/.test(event.target.tagName)) ? event.target : prompt
 
   clearTimeout(speechTimeoutId)
   speechTimeoutId = setTimeout(() => {
@@ -169,6 +172,14 @@ const stopSpeechRecognition = () => {
   isRecording.value && Voice.stop()
   isRecording.value = false
 }
+
+// if (Voice.isInitEvent === false) {
+//   document.body.addEventListener('mousedown', startSpeechRecognition)
+//   document.body.addEventListener('mouseup', stopSpeechRecognition)
+//   document.body.addEventListener('touchstart', startSpeechRecognition)
+//   document.body.addEventListener('touchend', stopSpeechRecognition)
+//   Voice.isInitEvent = true
+// }
 
 function handleSubmit() {
   onConversation()
@@ -661,7 +672,7 @@ onUnmounted(() => {
                   <SvgIcon icon="ri:chat-history-line" />
                 </span>
               </NButton>
-              <NButton @click="handleVoiceChat">
+              <NButton v-show="false" @click="handleVoiceChat">
                 <span class="text-xl" :class="{ 'text-[#4b9e5f]': VoiceControl, 'text-[#a8071a]': !VoiceControl }">
                   <SvgIcon icon="material-symbols:voice-chat-outline" />
                 </span>
@@ -681,16 +692,11 @@ onUnmounted(() => {
                   </NButton>
                 </template>
                 <span class="text">
-                  <NTag type="success" size="large">
-                    作者: 江湖扯谈
-                  </NTag>
-                  <br>
-                  <br>
                   说明:
                   <br>
                   手势: 上滑发送  右/左滑侧边栏
-                  <br>
-                  语音: 语音控制  发送/重新输入
+                  <!-- <br>
+                  语音: 语音控制  发送/重新输入 -->
                   <br>
                   按住: 语音输入  松开识别/非实时
                   <br>
@@ -698,7 +704,7 @@ onUnmounted(() => {
                   <br>
                   <br>
                   <NTag type="success" size="large">
-                    版本: 2023.4.9
+                    版本: 2023.4.9 10.00
                   </NTag>
                 </span>
 

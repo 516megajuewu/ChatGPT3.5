@@ -13,6 +13,7 @@ class VoiceClass {
   speakList: Array<any> = []
   isSpeak = false
   recorder = new Recorder()
+  isInitEvent = false
   get isMobile() {
     return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)
   }
