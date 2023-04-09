@@ -172,11 +172,13 @@ class AutoVoiceRecognitionClass {
           const volume = dataArray.reduce((acc, cur) => acc + cur) / dataArray.length
           const volumeValue = this.isMobile ? 20 : 25
           if (volume > volumeValue) {
-            this.isRecording === 0 && this.recorder.start()
+            if (this.isRecording === 0) {
+              this.recorder.start()
+              this.onRecorder.value = true
+            }
             this.isRecording = 1 // 但有个问题 如果有杂音 会一直录下去
-            this.onRecorder.value = true
           }
-          if (volume < volumeValue && this.isRecording > 0 && this.isRecording++ > 50) {
+          if (volume < volumeValue && this.isRecording > 0 && this.isRecording++ > 75) {
             this.isRecording = 0
             this.onRecorder.value = false
             this.recorder.stop((blob: any) => {

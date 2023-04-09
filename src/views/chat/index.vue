@@ -107,22 +107,22 @@ document.body.ontouchend = (event: any) => {
   catch (error) {}
 }
 
-AutoVoiceRecognition.start((text: any) => {
-  switch (text) {
-    case '发送':
-      handleSubmit()
-      break
-    case '重新输入':
-      prompt.value = ''
-      break
-    case '清空聊天记录':
-      handleClear()
-      break
-    default:
-      prompt.value += `${text}`
-      break
-  }
-})
+// AutoVoiceRecognition.start((text: any) => {
+//   switch (text) {
+//     case '发送':
+//       handleSubmit()
+//       break
+//     case '重新输入':
+//       prompt.value = ''
+//       break
+//     case '清空聊天记录':
+//       handleClear()
+//       break
+//     default:
+//       prompt.value += `${text}`
+//       break
+//   }
+// })
 
 function handleVoiceChat() {
   useVoiceChat()
@@ -144,8 +144,6 @@ const startSpeechRecognition = (event: any) => {
     }
   }
   catch (error) {}
-  if (isRecording.value)
-    return event.preventDefault()
 
   // 鼠标中键 提交
   if (event.button === 1) {
@@ -153,7 +151,7 @@ const startSpeechRecognition = (event: any) => {
     handleSubmit()
   }
 
-  if (VoiceControl.value)
+  if (VoiceControl.value || isRecording.value)
     return
 
   clearTimeout(speechTimeoutId)
@@ -636,7 +634,7 @@ onUnmounted(() => {
 
           <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
             <template #trigger>
-              <NButton>
+              <NButton @mouseup="(event) => event.button === 1 && handleClear()">
                 <span class="text-xl">
                   <SvgIcon icon="ri:function-line" />
                 </span>
@@ -645,7 +643,7 @@ onUnmounted(() => {
             <span class="text">
               <NPopconfirm placement="bottom" @positive-click="handleClear">
                 <template #trigger>
-                  <NButton @mouseup="(event) => event.button === 1 && handleClear()">
+                  <NButton>
                     <span class="text-xl text-[#4f555e] dark:text-white">
                       <SvgIcon icon="ri:delete-bin-line" />
                     </span>
@@ -724,7 +722,7 @@ onUnmounted(() => {
               </NInput>
             </template>
           </NAutoComplete>
-          <NButton type="primary" :disabled="buttonDisabled">
+          <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
             <template #icon>
               <span class="dark:text-black">
                 <SvgIcon icon="ri:send-plane-fill" />
