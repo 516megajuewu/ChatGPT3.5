@@ -147,8 +147,10 @@ const startSpeechRecognition = (event: any) => {
 
   // 鼠标中键 提交 || 清空
   if (event.button === 1) {
-    if (event.target.tagName === 'TEXTAREA')
+    if (event.target.tagName === 'TEXTAREA') {
+      Voice.previousContent = ''
       return prompt.value = ''
+    }
     handleSubmit()
   }
 
@@ -529,7 +531,7 @@ function handleEnter(event: KeyboardEvent) {
     }
   }
   else {
-    if (((event.code === 'Enter' || event.key === 'Enter') && event.ctrlKey) || event.key === '\n') {
+    if (((event.code === 'Enter' || event.key === 'Enter')) || event.key === '\n') { // && event.ctrlKey
       event.preventDefault()
       handleSubmit()
     }
