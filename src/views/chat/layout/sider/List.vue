@@ -61,10 +61,10 @@ const ModelData = [
 
 const VoiceData = [
   { label: '晓伊(女-儿童)', value: 'zh-CN-XiaoyiNeural' },
-  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural' },
+  { label: '云希(男-抖音)', value: 'zh-CN-YunxiNeural' },
   // { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural' },
   { label: '有道(女-稳定)', value: 'https://tts.youdao.com/fanyivoice?le=zh&word=' },
-  { label: '搜狗(男-稳定)', value: 'https://fanyi.sogou.com/reventondc/synthesis?text=' },
+  // { label: '搜狗(男-稳定)', value: 'https://fanyi.sogou.com/reventondc/synthesis?text=' },
   // { label: '晓晓(女-年轻)', value: 'zh-CN-XiaoxiaoNeural' },
   // { label: '云扬(男-年轻)', value: 'zh-CN-YunyangNeural' },
   // { label: '晓涵(女-年轻)', value: 'zh-CN-XiaohanNeural' },
