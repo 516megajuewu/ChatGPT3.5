@@ -117,7 +117,7 @@ class VoiceClass {
       }
       audio.onerror = () => {
         this.isSpeak = false
-        this.speak(undefined, info)
+        // this.speak(undefined, info)
       }
 
       this.speakList.push(audio)
