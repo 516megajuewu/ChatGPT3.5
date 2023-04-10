@@ -219,7 +219,8 @@ function buildMessage(message: String, index: number) {
 async function AutoChat(message: any, index: number) {
   let api = ''
   let options = {}
-  const item = chatStore.getHistory(+uuid)
+  const item = chatStore.getHistory(+uuid) as any
+  item?.engine || (item.engine = 'binjie')
   switch (item?.engine) {
     case 'binjie':
       api = 'https://xuanxuan.club:3002/chat'
