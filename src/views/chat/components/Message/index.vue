@@ -107,7 +107,7 @@ function upState(time: string | undefined) {
                 <SvgIcon icon="ri:delete-bin-line" />
               </button>
             </template>
-            {{ $t('chat.deleteHistoryConfirm') }}
+            {{ $t('chat.deleteChatInfoConfirm') }}
           </NPopconfirm>
           <!-- <NDropdown :placement="!inversion ? 'right' : 'left'" :options="options" @select="handleSelect">
             <button class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200">

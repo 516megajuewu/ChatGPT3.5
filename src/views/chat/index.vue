@@ -79,7 +79,7 @@ function speechHandle(text?: any) {
     if (tmp.length < 2)
       continue
     speechArray.push(tmp)
-    isSpeak.value && Voice.speak(tmp)
+    isSpeak.value && Voice.speak(tmp, chatStore.getHistory(+uuid)?.voice)
   }
   end && (speechArray = [])
 }
@@ -217,11 +217,10 @@ function buildMessage(message: String, index: number) {
 }
 
 async function AutoChat(message: any, index: number) {
-  const publicAPI = 'binjie'
   let api = ''
   let options = {}
   const item = chatStore.getHistory(+uuid)
-  switch (publicAPI) {
+  switch (item?.engine) {
     case 'binjie':
       api = 'https://xuanxuan.club:3002/chat'
       // api = 'https://127.0.0.1:3002/chat'
@@ -229,7 +228,19 @@ async function AutoChat(message: any, index: number) {
         publicAPI: 'binjie',
         prompt: message,
         chatId: +uuid,
-        network: !!item?.network,
+        network: false,
+        withoutContext: !usingContext.value,
+        system: (item || { system: '' }).system,
+      }
+      break
+    case 'binjie_network':
+      api = 'https://xuanxuan.club:3002/chat'
+      // api = 'https://127.0.0.1:3002/chat'
+      options = {
+        publicAPI: 'binjie',
+        prompt: message,
+        chatId: +uuid,
+        network: true,
         withoutContext: !usingContext.value,
         system: (item || { system: '' }).system,
       }
@@ -601,8 +612,8 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col w-full h-full">
     <HeaderComponent
-      v-if="isMobile" :using-context="usingContext" @export="handleExport"
-      @toggle-using-context="toggleUsingContext"
+      v-if="isMobile" :using-context="usingContext" :is-speak="isSpeak"
+      @export="handleExport" @toggle-using-context="toggleUsingContext" @use-speak="useSpeak"
     />
     <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition" @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">

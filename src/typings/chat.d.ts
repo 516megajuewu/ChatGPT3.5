@@ -10,12 +10,13 @@ declare namespace Chat {
 		requestOptions: { prompt: string; options?: ConversationRequest | null }
 	}
 
-	interface History {
+	interface Info {
 		title: string
 		isEdit: boolean
 		system: string
 		uuid: number
 
+		voice?: string,
 		network?:boolean,//联网
 		engine?:string, //引擎
 		model?: string, //模型
@@ -24,7 +25,7 @@ declare namespace Chat {
 
 	interface ChatState {
 		active: number | null
-		history: History[]
+		history: Info[]
 		chat: { uuid: number; data: Chat[] }[]
 	}
 

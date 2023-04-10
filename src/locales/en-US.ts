@@ -44,7 +44,7 @@ export default {
     turnOffContext: 'In the current mode, sending messages will not carry previous chat records.',
     deleteMessage: 'Delete Message',
     deleteMessageConfirm: 'Are you sure to delete this message?',
-    deleteHistoryConfirm: 'Are you sure to clear this history?',
+    deleteChatInfoConfirm: 'Are you sure to clear this history?',
     clearHistoryConfirm: 'Are you sure to clear chat history?',
   },
   setting: {

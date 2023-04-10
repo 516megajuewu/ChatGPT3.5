@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { NModal, NTabPane, NTabs } from 'naive-ui'
 import General from './General.vue'
-import VoiceConfig from './VoiceConfig.vue'
+// import VoiceConfig from './VoiceConfig.vue'
 import { SvgIcon } from '@/components/common'
 
 const props = defineProps<Props>()
@@ -43,13 +43,13 @@ const show = computed({
           </div>
         </NTabPane>
         <!-- 设置扩展 -->
-        <NTabPane name="Config" tab="Config">
+        <!-- <NTabPane name="Config" tab="Config">
           <template #tab>
             <SvgIcon class="text-lg" icon="icon-park-twotone:people-speak" />
             <span class="ml-2">{{ '声音' }}</span>
           </template>
           <VoiceConfig />
-        </NTabPane>
+        </NTabPane> -->
       </NTabs>
     </div>
   </NModal>

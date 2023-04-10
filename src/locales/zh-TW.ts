@@ -44,7 +44,7 @@ export default {
     turnOffContext: '關閉上下文模式，在此模式下，發送訊息不會包含之前的聊天記錄。',
     deleteMessage: '刪除訊息',
     deleteMessageConfirm: '是否刪除此訊息?',
-    deleteHistoryConfirm: '確定刪除此紀錄?',
+    deleteChatInfoConfirm: '確定刪除此紀錄?',
     clearHistoryConfirm: '確定清除紀錄?',
   },
   setting: {

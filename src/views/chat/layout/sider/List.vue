@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
-import { NCheckbox, NInput, NPopconfirm, NScrollbar, NSelect, NTag } from 'naive-ui'
+import { NInput, NPopconfirm, NScrollbar, NSelect, NTag } from 'naive-ui'
 import { SvgIcon } from '@/components/common'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -14,32 +14,32 @@ const chatStore = useChatStore()
 
 const dataSources = computed(() => chatStore.history)
 
-async function handleSelect({ uuid }: Chat.History) {
+async function handleSelect({ uuid }: Chat.Info) {
   if (isActive(uuid))
     return
 
   if (chatStore.active)
-    chatStore.updateHistory(chatStore.active, { isEdit: false })
+    chatStore.updateChatInfo(chatStore.active, { isEdit: false })
   await chatStore.setActive(uuid)
 
   if (isMobile.value)
     appStore.setSiderCollapsed(true)
 }
 
-function handleEdit({ uuid }: Chat.History, isEdit: boolean, event?: MouseEvent) {
+function handleEdit({ uuid }: Chat.Info, isEdit: boolean, event?: MouseEvent) {
   event?.stopPropagation()
-  chatStore.updateHistory(uuid, { isEdit })
+  chatStore.updateChatInfo(uuid, { isEdit })
 }
 
 function handleDelete(index: number, event?: MouseEvent | TouchEvent) {
   event?.stopPropagation()
-  chatStore.deleteHistory(index)
+  chatStore.deleteChatInfo(index)
 }
 
-function handleEnter({ uuid }: Chat.History, isEdit: boolean, event: KeyboardEvent) {
+function handleEnter({ uuid }: Chat.Info, isEdit: boolean, event: KeyboardEvent) {
   event?.stopPropagation()
   if (event.key === 'Enter')
-    chatStore.updateHistory(uuid, { isEdit })
+    chatStore.updateChatInfo(uuid, { isEdit })
 }
 
 function isActive(uuid: number) {
@@ -47,19 +47,24 @@ function isActive(uuid: number) {
 }
 
 const ModelData = [
-  { label: '3.5 官方', value: '3.5 官方' },
-  { label: '4.0 16K', value: 'zh-CN-没有开放', disabled: true },
-  { label: '4.0 32K', value: 'zh-CN-XiaochenNeural', disabled: true },
-  { label: '微软必应', value: 'zh-CN-XiaohanNeural', disabled: true },
-  { label: '文心一言', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
-  { label: '聚合绘图', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
+  { label: 'Chat 3.5 官方', value: 'binjie' },
+  { label: 'Chat 3.5 联网', value: 'binjie_network' },
+  { label: 'Chat 3.5 备用', value: 'default' },
+  { label: 'Chat 4.0 16K', value: 'zh-CN-没有开放', disabled: true },
+  { label: 'Chat 4.0 32K', value: 'zh-CN-XiaochenNeural', disabled: true },
+  { label: '搜索 微软必应', value: 'zh-CN-XiaohanNeural', disabled: true },
+  // { label: '百度 文心一言', value: 'zh-CN-XiaoxiaoNeural', disabled: true },
+  { label: '绘图 聚合绘图', value: '聚合绘图', disabled: true },
+  { label: '视频 生成视频', value: '视频生成', disabled: true },
+  { label: '通用 自动任务', value: '贾维斯', disabled: true },
 ]
 
 const VoiceData = [
   { label: '晓伊(女-儿童)', value: 'zh-CN-XiaoyiNeural' },
-  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural', disabled: true },
-  { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural', disabled: true },
-  { label: '有道(女-稳定)', value: 'zh-CN-YunxiNeural', disabled: true },
+  { label: '云希(男-热门)', value: 'zh-CN-YunxiNeural' },
+  // { label: '晓辰(女-热门)', value: 'zh-CN-XiaochenNeural' },
+  { label: '有道(女-稳定)', value: 'https://tts.youdao.com/fanyivoice?le=zh&word=' },
+  { label: '搜狗(男-稳定)', value: 'https://fanyi.sogou.com/reventondc/synthesis?text=' },
   // { label: '晓晓(女-年轻)', value: 'zh-CN-XiaoxiaoNeural' },
   // { label: '云扬(男-年轻)', value: 'zh-CN-YunyangNeural' },
   // { label: '晓涵(女-年轻)', value: 'zh-CN-XiaohanNeural' },
@@ -139,16 +144,16 @@ const VoiceData = [
                     </button>
                   </template>
                   <span class="text">
-                    <NTag size="large">
+                    <!-- <NTag size="large">
                       <NCheckbox v-model:checked="item.network">启用互联网搜索</NCheckbox>
                     </NTag>
                     <br>
                     ------------------------
-                    <br>
+                    <br> -->
                     <NTag type="success" size="medium">
-                      模型:
+                      引擎:
                     </NTag>
-                    <NSelect :options="ModelData" :default-value="ModelData[0].label" />
+                    <NSelect v-model:value="item.engine" :options="ModelData" :default-value="ModelData[0].label" />
                     <!-- <br>
                     <NTag type="success" size="medium">
                       参数:
@@ -166,7 +171,7 @@ const VoiceData = [
                     <NTag type="success" size="medium">
                       语音:
                     </NTag>
-                    <NSelect :options="VoiceData" :default-value="VoiceData[0].label" />
+                    <NSelect v-model:value="item.voice" :options="VoiceData" :default-value="VoiceData[0].label" />
 
                   </span></NPopconfirm>
                 <NPopconfirm placement="bottom" @positive-click="handleDelete(index, $event)">
@@ -175,7 +180,7 @@ const VoiceData = [
                       <SvgIcon icon="ri:delete-bin-line" />
                     </button>
                   </template>
-                  {{ $t('chat.deleteHistoryConfirm') }}
+                  {{ $t('chat.deleteChatInfoConfirm') }}
                 </NPopconfirm>
               </template>
             </div>

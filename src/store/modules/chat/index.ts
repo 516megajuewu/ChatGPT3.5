@@ -23,14 +23,14 @@ export const useChatStore = defineStore('chat-store', {
   },
 
   actions: {
-    addHistory(history: Chat.History, chatData: Chat.Chat[] = []) {
+    addChatInfo(history: Chat.Info, chatData: Chat.Chat[] = []) {
       this.history.unshift(history)
       this.chat.unshift({ uuid: history.uuid, data: chatData })
       this.active = history.uuid
       this.reloadRoute(history.uuid)
     },
 
-    updateHistory(uuid: number, edit: Partial<Chat.History>) {
+    updateChatInfo(uuid: number, edit: Partial<Chat.Info>) {
       const index = this.history.findIndex(item => item.uuid === uuid)
       if (index !== -1) {
         this.history[index] = { ...this.history[index], ...edit }
@@ -44,7 +44,7 @@ export const useChatStore = defineStore('chat-store', {
         return this.history[index]
     },
 
-    async deleteHistory(index: number) {
+    async deleteChatInfo(index: number) {
       this.history.splice(index, 1)
       this.chat.splice(index, 1)
 

@@ -104,19 +104,20 @@ class VoiceClass {
     return words
   }
 
-  speak(text: string | undefined) {
+  speak(text: string | undefined, info = 'zh-CN-XiaoyiNeural') {
     // text && this.speakList.push(new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`))
     if (text) {
       // https://fanyi.sogou.com/reventondc/synthesis?text=哈哈
       // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`)
-      const audio = new Audio(`${SERVER}/voice?text=${encodeURI(text)}`)
+      const address = info.substring(0, 4) === 'http' ? `${info}${encodeURI(text)}` : `${SERVER}/voice?text=${encodeURI(text)}&voice=${info}`
+      const audio = new Audio(address)
       audio.onended = () => {
         this.isSpeak = false
-        this.speak(undefined)
+        this.speak(undefined, info)
       }
       audio.onerror = () => {
         this.isSpeak = false
-        this.speak(undefined)
+        this.speak(undefined, info)
       }
 
       this.speakList.push(audio)
@@ -133,12 +134,12 @@ class VoiceClass {
     try {
       nextAudio.play().catch(() => {
         this.isSpeak = false
-        this.speak(undefined)
+        this.speak(undefined, info)
       })
     }
     catch (error) {
       this.isSpeak = false
-      this.speak(undefined)
+      this.speak(undefined, info)
     }
   }
 }
