@@ -18,7 +18,7 @@ const login = async () => {
 
 const UpBalance = async () => {
   try {
-    userStore.updateUserInfo({ description: '更新: 2023-04-10 21.35' })
+    userStore.updateUserInfo({ description: '更新: 2023-04-11 10.50' })
     // 记录查询时间 一个小时内不再查询
     if (userInfo.value.balanceTime && userInfo.value.balanceTime > Date.now() - 3600000)
       return
