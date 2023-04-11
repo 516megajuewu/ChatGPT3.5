@@ -5,8 +5,8 @@ import { t } from '@/locales'
 export function useUsingContext() {
   const ms = useMessage()
   const usingContext = ref<boolean>(true)
-  const VoiceControl = ref<boolean>(!!localStorage.VoiceControl)
-  const isSpeak = ref<boolean>(!!localStorage.isSpeak)
+  const VoiceControl = ref<boolean>(false)
+  const isSpeak = ref<boolean>(!!(localStorage.isSpeak === undefined ? true : localStorage.isSpeak))
 
   function toggleUsingContext() {
     usingContext.value = !usingContext.value

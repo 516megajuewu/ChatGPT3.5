@@ -132,11 +132,10 @@ class VoiceClass {
     }
     this.isSpeak = true
     try {
-      nextAudio.play()
-      // .catch(() => {
-      //   this.isSpeak = false
-      //   this.speak(undefined, info)
-      // })
+      nextAudio.play().catch(() => {
+        this.isSpeak = false
+        this.speak(undefined, info)
+      })
     }
     catch (error) {
       this.isSpeak = false
