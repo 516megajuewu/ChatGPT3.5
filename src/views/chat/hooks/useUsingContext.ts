@@ -26,7 +26,8 @@ export function useUsingContext() {
   }
 
   function useSpeak() {
-    isSpeak.value = !isSpeak.value
+    isSpeak.value = !isSpeak.value;
+    (document as any).mute = isSpeak.value
     if (isSpeak.value)
       ms.success('开启语音朗读')
     else

@@ -149,6 +149,8 @@ class AutoVoiceRecognitionClass {
   isRecording = 0
   isRunning = true
   isInit = false
+  isActivation = false
+  speakLastTime = Date.now()
   onRecorder = ref<boolean>(false)
   onVoice = (txt: any) => {}
   get isMobile() {
@@ -179,7 +181,7 @@ class AutoVoiceRecognitionClass {
           analyserNode.getByteFrequencyData(dataArray)
           // 计算音量值
           const volume = dataArray.reduce((acc, cur) => acc + cur) / dataArray.length
-          const volumeValue = this.isMobile ? 20 : 25
+          const volumeValue = 20// this.isMobile ? 20 : 25
           if (volume > volumeValue) {
             if (this.isRecording === 0) {
               this.recorder.start()
@@ -206,6 +208,7 @@ class AutoVoiceRecognitionClass {
                   }),
                 }).then(async (response) => {
                   const data = await response.json()
+                  data.result && (this.speakLastTime = Date.now())
                   data.result && this.onVoice(data.result)
                 })
               }

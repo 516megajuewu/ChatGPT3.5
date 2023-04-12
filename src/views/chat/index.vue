@@ -109,6 +109,12 @@ document.body.ontouchend = (event: any) => {
 
 // AutoVoiceRecognition.start((text: any) => {
 //   switch (text) {
+//     case '助手':
+//       prompt.value = ''
+//       AutoVoiceRecognition.isActivation = true
+//       // 随机回应
+//       Voice.speak(['我在', '来啦'][Math.floor(Math.random() * 2)], chatStore.getHistory(+uuid)?.voice)
+//       break
 //     case '发送':
 //       handleSubmit()
 //       break
@@ -120,8 +126,23 @@ document.body.ontouchend = (event: any) => {
 //       break
 //     default:
 //       prompt.value += `${text}`
+//       AutoVoiceRecognition.isActivation && prompt.value.length > 1 && handleSubmit()
 //       break
 //   }
+
+//   setInterval(() => {
+//     // 语音播放的时候，不允许再次触发语音识别
+//     const isPlay = Voice.speakList.length > 0
+//     if (isPlay === !AutoVoiceRecognition.isRunning)
+//       AutoVoiceRecognition.speakLastTime = Date.now()
+//     else
+//       AutoVoiceRecognition.isActivation = true // 语音播放结束的时候，自动开启语音识别
+
+//     AutoVoiceRecognition.isRunning = !isPlay
+//     // isPlay && (AutoVoiceRecognition.speakLastTime = Date.now())
+//     // // 语音播放结束后，自动关闭语音识别
+//     // Voice.speakList.length === 0 && (AutoVoiceRecognition.isActivation = false)
+//   }, 1000)
 // })
 
 function handleVoiceChat() {
@@ -130,7 +151,9 @@ function handleVoiceChat() {
 }
 
 function handleisRecording() {
-  return (VoiceControl.value ? AutoVoiceRecognition.onRecorder.value : isRecording.value)
+  if (AutoVoiceRecognition.isActivation)
+    return 'text-[#7dc8f7]'
+  return (VoiceControl.value ? AutoVoiceRecognition.onRecorder.value : isRecording.value) ? 'text-[#4b9e5f]' : 'text-[#aaaaaa]'
 }
 
 const startSpeechRecognition = (event: any) => {
@@ -735,7 +758,7 @@ onUnmounted(() => {
                 @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
               >
                 <template #suffix>
-                  <span class="text-xl" :class=" handleisRecording() ? 'text-[#4b9e5f]' : 'text-[#aaaaaa]' ">
+                  <span class="text-xl" :class=" handleisRecording()">
                     <SvgIcon icon="ic:outline-keyboard-voice" width="25" height="25" />
                   </span>
                 </template>
