@@ -215,6 +215,11 @@ function handleSubmit() {
   Voice.previousContent = ''
 }
 
+function handleUseSpeak() {
+  useSpeak()
+  isSpeak.value || Voice.stopSpeak()
+}
+
 // !!有两个问题 index 和 不带聊天按钮
 function buildMessage(message: String, index: number) {
   // 构建消息请求 读取数组从后往前读取 大于35分钟的不读取和 总长度大于4000删除两个
@@ -721,7 +726,7 @@ onUnmounted(() => {
                   <SvgIcon icon="material-symbols:voice-chat-outline" />
                 </span>
               </NButton>
-              <NButton @click="useSpeak">
+              <NButton @click="handleUseSpeak">
                 <span class="text-xl" :class="{ 'text-[#4b9e5f]': isSpeak, 'text-[#a8071a]': !isSpeak }">
                   <SvgIcon icon="icon-park-twotone:people-speak" />
                 </span>

@@ -9,6 +9,7 @@ const SERVER = 'https://xuanxuan.club:3002'
 class VoiceClass {
   prompt: any
   recognition: any
+  playAudio: any
   previousContent: string | undefined
   speakList: Array<any> = []
   isSpeak = false
@@ -115,14 +116,15 @@ class VoiceClass {
 
     if (this.isSpeak)
       return
-    const nextAudio = this.speakList.shift()
-    if (!nextAudio) {
+    this.playAudio = this.speakList.shift()
+    if (!this.playAudio) {
       this.isSpeak = false
       return
     }
+
     this.isSpeak = true
     try {
-      nextAudio.play().catch(() => {
+      this.playAudio.play().catch(() => {
         this.isSpeak = false
         this.speak(undefined, info)
       })
@@ -131,6 +133,12 @@ class VoiceClass {
       this.isSpeak = false
       this.speak(undefined, info)
     }
+  }
+
+  stopSpeak() {
+    this.speakList = []
+    this.isSpeak = false
+    this.playAudio && this.playAudio.pause()
   }
 
   addAudio(url = '') {
