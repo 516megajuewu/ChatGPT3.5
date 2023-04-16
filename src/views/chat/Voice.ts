@@ -111,7 +111,18 @@ class VoiceClass {
       // https://fanyi.sogou.com/reventondc/synthesis?text=哈哈
       // const audio = new Audio(`https://tts.youdao.com/fanyivoice?word=${encodeURI(text)}&le=zh`)
       const address = info.substring(0, 4) === 'http' ? `${info}${encodeURI(text)}` : `${SERVER}/voice?text=${encodeURI(text)}&voice=${info}`
-      this.addAudio(address)
+      // this.addAudio(address)
+      const audio = new Audio(address)
+      audio.onended = () => {
+        this.isSpeak = false
+        this.speak(undefined, info)
+      }
+      audio.onerror = () => {
+        this.isSpeak = false
+        // this.speak(undefined, info)
+      }
+
+      this.speakList.push(audio)
     }
 
     if (this.isSpeak)
@@ -121,7 +132,6 @@ class VoiceClass {
       this.isSpeak = false
       return
     }
-
     this.isSpeak = true
     try {
       this.playAudio.play().catch(() => {
@@ -138,7 +148,7 @@ class VoiceClass {
   stopSpeak() {
     this.speakList = []
     this.isSpeak = false
-    this.playAudio && this.playAudio.pause()
+    this.playAudio?.pause()
   }
 
   addAudio(url = '') {
