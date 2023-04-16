@@ -69,8 +69,11 @@ function speechHandle(text?: any) {
   const len = speechText.split('```').length - 1
   if (len % 2 === 1)
     return
-  if (len % 2 === 0)
+  if (len % 2 === 0) {
     speechText = speechText.replace(/```[\s\S]*?```/g, '')
+    // 过滤网址
+    speechText = speechText.replace(/(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?/g, '')
+  }
 
   const end = typeof text === 'undefined'
   const a = speechText.split(/[。！？；\n]/g).filter((item: any) => item)
@@ -238,13 +241,17 @@ function buildMessage(message: String, index: number) {
   messages[messages.length - 1].role === 'assistant' && messages.pop()
   return messages
 }
+// 自定义接口
+// function customAPI(message,messages,usingContext,chatId,system,key,file) {
+
+// }
 
 async function AutoChat(message: any, index: number) {
   let api = ''
-  let options = {}
+  let options = { } as any
   const item = chatStore.getHistory(+uuid) as any
-  item?.engine || (item.engine = 'binjie')
-  switch (item?.engine) {
+  item?.api || (item.api = 'binjie')
+  switch (item?.api) {
     case 'binjie':
       api = 'https://xuanxuan.club:3002/chat'
       // api = 'https://127.0.0.1:3002/chat'
@@ -278,7 +285,7 @@ async function AutoChat(message: any, index: number) {
     // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
     Voice.speakList = []
     await fetchChatProcess({
-      url: api,
+      url: options.api ?? api,
       options,
       signal: controller.signal,
       onDownloadProgress: ({ event }) => {

@@ -151,9 +151,9 @@ const VoiceData = [
                     ------------------------
                     <br> -->
                     <NTag type="success" size="medium">
-                      引擎:
+                      接口:
                     </NTag>
-                    <NSelect v-model:value="item.engine" :options="ModelData" :default-value="ModelData[0].label" />
+                    <NSelect v-model:value="item.api" :options="ModelData" :default-value="ModelData[0].label" />
                     <!-- <br>
                     <NTag type="success" size="medium">
                       参数:

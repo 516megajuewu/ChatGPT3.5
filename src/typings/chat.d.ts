@@ -18,7 +18,7 @@ declare namespace Chat {
 
 		voice?: string,
 		network?:boolean,//联网
-		engine?:string, //引擎
+		api?:any, //接口 也可以是函数
 		model?: string, //模型
 		temperature?: number
 	}
