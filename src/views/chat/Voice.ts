@@ -127,6 +127,7 @@ class VoiceClass {
 
     if (this.isSpeak)
       return
+    this.playAudio && this.playAudio.pause() // 暂停当前播放的音频
     this.playAudio = this.speakList.shift()
     if (!this.playAudio) {
       this.isSpeak = false
