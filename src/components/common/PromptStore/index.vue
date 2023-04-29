@@ -6,7 +6,7 @@ import PromptRecommend from '../../../assets/recommend.json'
 import { SvgIcon } from '..'
 import { useChatStore, usePromptStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { t } from '@/locales'
+import { t } from '@/typings/locales'
 
 interface DataProps {
   renderKey: string

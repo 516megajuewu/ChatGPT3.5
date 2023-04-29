@@ -42,9 +42,9 @@ function toggleUsingContext() {
   emit('toggleUsingContext')
 }
 
-function useSpeak() {
-  emit('useSpeak')
-}
+// function useSpeak() {
+//   emit('useSpeak')
+// }
 </script>
 
 <template>
@@ -68,11 +68,11 @@ function useSpeak() {
         {{ currentChatHistory?.title ?? '' }}
       </h1>
       <div class="flex items-center space-x-2">
-        <HoverButton @click="useSpeak">
+        <!-- <HoverButton @click="useSpeak">
           <span class="text-xl" :class="{ 'text-[#4b9e5f]': isSpeak, 'text-[#a8071a]': !isSpeak }">
             <SvgIcon icon="icon-park-twotone:people-speak" />
           </span>
-        </HoverButton>
+        </HoverButton> -->
         <HoverButton @click="toggleUsingContext">
           <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
             <SvgIcon icon="ri:chat-history-line" />

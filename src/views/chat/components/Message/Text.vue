@@ -5,7 +5,7 @@ import mdKatex from '@traptitech/markdown-it-katex'
 import hljs from 'highlight.js'
 import { useMessage } from 'naive-ui'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { t } from '@/locales'
+import { t } from '@/typings/locales'
 // import { SvgIcon } from '@/components/common'
 import { copyText } from '@/utils/format'
 const props = defineProps<Props>()

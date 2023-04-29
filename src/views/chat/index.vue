@@ -15,7 +15,7 @@ import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useChatStore, usePromptStore, useUserStore } from '@/store'
 import { fetchChatProcess } from '@/api'
-import { t } from '@/locales'
+import { t } from '@/typings/locales'
 
 let controller = new AbortController()
 

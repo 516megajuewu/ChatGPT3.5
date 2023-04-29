@@ -17,7 +17,7 @@ const show = ref(false)
 const collapsed = computed(() => appStore.siderCollapsed)
 
 function handleAdd() {
-  chatStore.addChatInfo({ title: 'New Chat', uuid: Date.now(), isEdit: false, system: 'You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.' })
+  chatStore.addChatInfo({ title: 'New Chat', uuid: Date.now(), isEdit: false, system: '' })
 }
 
 function handleUpdateCollapsed() {
