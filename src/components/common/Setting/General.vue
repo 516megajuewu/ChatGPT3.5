@@ -7,7 +7,7 @@ import { useAppStore, useUserStore } from '@/store'
 import type { UserInfo } from '@/store/modules/user/helper'
 import { getCurrentDate } from '@/utils/functions'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { t } from '@/typings/locales'
+import { t } from '@/locales'// !!!'
 
 const appStore = useAppStore()
 const userStore = useUserStore()

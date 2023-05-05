@@ -15,7 +15,7 @@ import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useChatStore, usePromptStore, useUserStore } from '@/store'
 import { fetchChatProcess } from '@/api'
-import { t } from '@/typings/locales'
+import { t } from '@/locales'// !!!
 
 let controller = new AbortController()
 
@@ -173,11 +173,8 @@ const startSpeechRecognition = (event: any) => {
 
   // 鼠标中键 提交 || 清空
   if (event.button === 1) {
-    if (event.target.tagName === 'TEXTAREA') {
-      Voice.previousContent = ''
-      return prompt.value = ''
-    }
-    handleSubmit()
+    if (event.target.tagName !== 'TEXTAREA')
+      handleSubmit()
   }
 
   if (VoiceControl.value || isRecording.value)
@@ -210,6 +207,8 @@ const stopSpeechRecognition = () => {
 // }
 
 function handleSubmit() {
+  // if (loading.value)
+  //   return ms.error('正在请求中...')
   onConversation()
   prompt.value = ''
   Voice.previousContent = ''
@@ -289,6 +288,8 @@ async function AutoChat(message: any, index: number) {
   const fetchChatAPIOnce = async () => {
     // 构建消息请求 读取数组从后往前读取 大于五分钟的不读取和 总长度大于4000删除两个
     Voice.speakList = []
+    const sourceslen = dataSources.value.length - 1
+    const conversationId = Date.now().toString()
     await fetchChatProcess({
       url: options.api ?? api,
       options,
@@ -299,14 +300,14 @@ async function AutoChat(message: any, index: number) {
         try {
           updateChat(
             +uuid,
-            index === 0 ? dataSources.value.length - 1 : index,
+            index === 0 ? sourceslen : index,
             {
               dateTime: index === 0 ? new Date().toLocaleString() : dataSources.value[index].dateTime,
               text: responseText ?? '',
               inversion: false,
               error: false,
               loading: false,
-              conversationOptions: { conversationId: 'data.conversationId', parentMessageId: 'index.toString()' },
+              conversationOptions: { conversationId, parentMessageId: index.toString() },
               requestOptions: { prompt: message },
             },
           )
@@ -326,8 +327,8 @@ async function AutoChat(message: any, index: number) {
 async function onConversation() {
   const message = prompt.value
 
-  if (loading.value)
-    return
+  // if (loading.value)
+  //   return
 
   if (!message || message.trim() === '')
     return
