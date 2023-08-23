@@ -92,7 +92,7 @@ document.body.ontouchstart = (event: any) => {
     touch.SX = event.touches[0].clientX
     touch.SY = event.touches[0].clientY
   }
-  catch (error) {}
+  catch (error) { }
 }
 
 document.body.ontouchend = (event: any) => {
@@ -107,7 +107,7 @@ document.body.ontouchend = (event: any) => {
     if (touch.SY - touch.EY > 135 && !prompt.value.includes('识别中...')) // 向上滑动
       handleSubmit()
   }
-  catch (error) {}
+  catch (error) { }
 }
 
 // AutoVoiceRecognition.start((text: any) => {
@@ -169,7 +169,7 @@ const startSpeechRecognition = (event: any) => {
       event.preventDefault()
     }
   }
-  catch (error) {}
+  catch (error) { }
 
   // 鼠标中键 提交 || 清空
   if (event.button === 1) {
@@ -252,7 +252,7 @@ function buildMessage(message: String, index: number) {
 
 async function AutoChat(message: any, index: number) {
   let api = ''
-  let options = { } as any
+  let options = {} as any
   const item = chatStore.getHistory(+uuid) as any
   item?.api || (item.api = 'binjie')
   switch (item?.api) {
@@ -267,6 +267,7 @@ async function AutoChat(message: any, index: number) {
         withoutContext: !usingContext.value,
         system: (item || { system: '' }).system,
       }
+      options = { messages: buildMessage(message, index) }
       break
     case 'binjie_network':
       api = 'https://xuanxuan.club:3002/chat'
@@ -649,10 +650,13 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col w-full h-full">
     <HeaderComponent
-      v-if="isMobile" :using-context="usingContext" :is-speak="isSpeak"
-      @export="handleExport" @toggle-using-context="toggleUsingContext" @use-speak="useSpeak"
+      v-if="isMobile" :using-context="usingContext" :is-speak="isSpeak" @export="handleExport"
+      @toggle-using-context="toggleUsingContext" @use-speak="useSpeak"
     />
-    <main class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition" @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition">
+    <main
+      class="flex-1 overflow-hidden" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
+      @touchstart="startSpeechRecognition" @touchend="stopSpeechRecognition"
+    >
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper" class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
@@ -668,8 +672,8 @@ onUnmounted(() => {
             <div>
               <Message
                 v-for="(item, index) of dataSources" :key="index" :date-time="item.dateTime" :text="item.text"
-                :inversion="item.inversion" :error="item.error" :loading="item.loading"
-                @regenerate="onRegenerate(index)" @delete="handleDelete(index)"
+                :inversion="item.inversion" :error="item.error" :loading="item.loading" @regenerate="onRegenerate(index)"
+                @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
                 <NButton v-if="loading" type="warning" @click="handleStop">
@@ -744,11 +748,11 @@ onUnmounted(() => {
                 <span class="text">
                   说明:
                   <br>
-                  手势: 上滑发送  右/左滑侧边栏
+                  手势: 上滑发送 右/左滑侧边栏
                   <!-- <br>
                   语音: 语音控制  发送/重新输入 -->
                   <br>
-                  按住: 语音输入  松开识别/非实时
+                  按住: 语音输入 松开识别/非实时
                   <br>
                   设定: 点击聊天图标可以设定角色
                   <br>
@@ -771,7 +775,7 @@ onUnmounted(() => {
                 @keypress="handleEnter" @mousedown="startSpeechRecognition" @mouseup="stopSpeechRecognition"
               >
                 <template #suffix>
-                  <span class="text-xl" :class=" handleisRecording()">
+                  <span class="text-xl" :class="handleisRecording()">
                     <SvgIcon icon="ic:outline-keyboard-voice" width="25" height="25" />
                   </span>
                 </template>

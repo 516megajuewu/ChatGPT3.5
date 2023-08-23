@@ -48,8 +48,8 @@ function isActive(uuid: number) {
 
 const ModelData = [
   { label: 'Chat 3.5 官方', value: 'binjie' },
-  { label: 'Chat 3.5 联网', value: 'binjie_network' },
-  { label: 'Chat 3.5 备用', value: 'default' },
+  { label: 'Chat 3.5 联网', value: 'binjie_network', disabled: true },
+  { label: 'Chat 3.5 备用', value: 'default', disabled: true },
   { label: 'Chat 4.0 16K', value: 'zh-CN-没有开放', disabled: true },
   { label: 'Chat 4.0 32K', value: 'zh-CN-XiaochenNeural', disabled: true },
   { label: '搜索 微软必应', value: 'zh-CN-XiaohanNeural', disabled: true },
@@ -89,13 +89,19 @@ const VoiceData = [
         </div>
       </template>
       <template v-else>
-        <div v-for="(item, index) of dataSources" :key="index" @mouseup="$event => $event.button === 1 && handleDelete(index, $event)">
+        <div
+          v-for="(item, index) of dataSources" :key="index"
+          @mouseup="$event => $event.button === 1 && handleDelete(index, $event)"
+        >
           <a
             class="relative flex items-center gap-3 px-3 py-3 break-all border rounded-md cursor-pointer hover:bg-neutral-100 group dark:border-neutral-800 dark:hover:bg-[#24272e]"
             :class="isActive(item.uuid) && ['border-[#4b9e5f]', 'bg-neutral-100', 'text-[#4b9e5f]', 'dark:bg-[#24272e]', 'dark:border-[#4b9e5f]', 'pr-14']"
             @click="handleSelect(item)"
           >
-            <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
+            <NPopconfirm
+              ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null"
+              :negative-text="null"
+            >
               <template #trigger>
                 <button>
                   <span class="text-xl">
@@ -106,7 +112,9 @@ const VoiceData = [
               <span class="text">
                 标题
                 <NInput v-model:value="item.title" type="text" placeholder="标题" />
-                <p class="text">设定<NInput v-model:value="item.system" type="textarea" placeholder="人物角色设定, 可以参考 Prompt Store " /></p>
+                <p class="text">设定
+                  <NInput v-model:value="item.system" type="textarea" placeholder="人物角色设定, 可以参考 Prompt Store " />
+                </p>
                 <!-- <NDivider>
                   语音
                 </NDivider>
@@ -123,9 +131,7 @@ const VoiceData = [
 
             <div class="relative flex-1 overflow-hidden break-all text-ellipsis whitespace-nowrap">
               <NInput
-                v-if="item.isEdit"
-                v-model:value="item.title"
-                size="small"
+                v-if="item.isEdit" v-model:value="item.title" size="small"
                 @keypress="handleEnter(item, false, $event)"
               />
               <span v-else>{{ item.title }}</span>
@@ -137,7 +143,10 @@ const VoiceData = [
                 </button>
               </template>
               <template v-else>
-                <NPopconfirm ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null" :negative-text="null">
+                <NPopconfirm
+                  ref="SystemRole" placement="bottom" :show-icon="false" :positive-text="null"
+                  :negative-text="null"
+                >
                   <template #trigger>
                     <button class="p-1">
                       <SvgIcon icon="ion:options-outline" />
@@ -173,7 +182,8 @@ const VoiceData = [
                     </NTag>
                     <NSelect v-model:value="item.voice" :options="VoiceData" :default-value="VoiceData[0].label" />
 
-                  </span></NPopconfirm>
+                  </span>
+                </NPopconfirm>
                 <NPopconfirm placement="bottom" @positive-click="handleDelete(index, $event)">
                   <template #trigger>
                     <button class="p-1">
