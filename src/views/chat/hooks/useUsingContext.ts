@@ -6,7 +6,7 @@ export function useUsingContext() {
   const ms = useMessage()
   const usingContext = ref<boolean>(true)
   const VoiceControl = ref<boolean>(false)
-  const isSpeak = ref<boolean>(!!(localStorage.isSpeak === undefined ? true : localStorage.isSpeak))
+  const isSpeak = ref<boolean>(false)
 
   function toggleUsingContext() {
     usingContext.value = !usingContext.value
@@ -27,7 +27,7 @@ export function useUsingContext() {
 
   function useSpeak() {
     isSpeak.value = !isSpeak.value;
-    (document as any).mute = isSpeak.value
+    //(document as any).mute = isSpeak.value
     if (isSpeak.value)
       ms.success('开启语音朗读')
     else
